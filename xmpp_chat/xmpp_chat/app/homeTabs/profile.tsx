@@ -6,7 +6,12 @@
 */
 import { Alert, Button, Text, TextInput, View } from "react-native";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-export default function Profile() {
+import React from "react"
+import { HomeScreenRouteProp } from "@/constants/Props";
+import { useRoute } from "@react-navigation/native";
+const Profile : React.FC = () => {
+  const route = useRoute<HomeScreenRouteProp>();
+  const {username} = route.params
   return (
     <View
     style={{
@@ -16,7 +21,9 @@ export default function Profile() {
       gap: 20,
     }}
   >
+   <Text>{username} Settings</Text>
    <Text>Profile Screen</Text>
   </View>
   )
 }
+export default Profile

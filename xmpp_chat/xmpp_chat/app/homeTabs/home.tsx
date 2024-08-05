@@ -8,7 +8,12 @@ sending messages
 */
 import { Alert, Button, Text, TextInput, View } from "react-native";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-export default function Home() {
+import React from "react";
+import { useRoute } from "@react-navigation/native";
+import { HomeScreenRouteProp } from "@/constants/Props";
+const Home: React.FC = () => {
+  const route = useRoute<HomeScreenRouteProp>();
+  const {username} = route.params;
   return (
     <View
     style={{
@@ -18,7 +23,9 @@ export default function Home() {
       gap: 20,
     }}
   >
-   <Text>Home Screen</Text>
+   <Text>Welcome {username}!</Text>
   </View>
   )
 }
+
+export default Home

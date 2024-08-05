@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NavigationProp } from '@/constants/Props';
 
-type RootStackParamList = {
-  index: undefined;
-  homeTabs: undefined;
-};
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'index'>;
+
+
 
 const Index: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -17,9 +15,9 @@ const Index: React.FC = () => {
 
   const handleLogin = () => {
     // Perform login logic here
-
+    console.log(username)
     // If login is successful, navigate to the HomeTabs screen
-    navigation.navigate('homeTabs');
+    navigation.navigate('homeTabs', {username: username});
   };
 
   return (
@@ -27,12 +25,14 @@ const Index: React.FC = () => {
       <Text>Login</Text>
       <TextInput
         placeholder="Username"
+        id="username"
         value={username}
         onChangeText={setUsername}
         style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, width: '80%' }}
       />
       <TextInput
         placeholder="Password"
+        id="password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry

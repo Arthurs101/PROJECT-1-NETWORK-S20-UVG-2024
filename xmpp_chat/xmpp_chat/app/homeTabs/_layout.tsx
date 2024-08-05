@@ -3,15 +3,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Home from './home';
 import Profile from './profile';
-
-type HomeTabsParamList = {
-  home: undefined;
-  profile: undefined;
-};
+import { HomeTabsParamList } from '@/constants/Props';
+import { RouteProp, useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator<HomeTabsParamList>();
 
 export default function HomeTabsLayout() {
+  const route = useRoute<RouteProp<{ homeTabs: { username: string } }, 'homeTabs'>>();
+  const { username } = route.params;
   return (
     <Tab.Navigator>
       <Tab.Screen 
@@ -22,6 +21,7 @@ export default function HomeTabsLayout() {
             <Icon name="home-outline" color={color} size={size} />
           ),
         }}
+        initialParams={{username}} 
       />
       <Tab.Screen 
         name="profile" 
@@ -31,6 +31,7 @@ export default function HomeTabsLayout() {
             <Icon name="person-outline" color={color} size={size} />
           ),
         }}
+        initialParams={{username}} 
       />
     </Tab.Navigator>
   );
