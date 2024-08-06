@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationProp } from '@/constants/Props';
-
+import { client,xml  } from '@xmpp/client';
 
 
 
@@ -14,9 +14,19 @@ const Index: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
   const handleLogin = () => {
-    // Perform login logic here
-    console.log(username)
-    // If login is successful, navigate to the HomeTabs screen
+    const domain = 'alumchat.lol'; 
+    const host = 'alumchat.lol';
+    const port = 5222;
+
+    const xmpp = client({
+      domain: domain,
+      username: username,
+      password: username,
+    });
+    xmpp.on("error", (err) => {
+      navigation.navigate('homeTabs', {username: "Shit went bad"});
+    });
+    xmpp.start().catch(console.error);
     navigation.navigate('homeTabs', {username: username});
   };
 
