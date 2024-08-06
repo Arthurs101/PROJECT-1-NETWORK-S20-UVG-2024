@@ -1,0 +1,27 @@
+:root{
+    --crimson-red : #780000;
+    --accent-red :  #C1121F; 
+    --light-cream-yellow : #FDF0D5;
+    --dark-royal-blue : #003049;
+    --blue-gray : #669BBC;
+}
+body {
+    display: flex;
+}
+.card-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid 1px var(--dark-royal-blue);
+    border-radius: 1rem;
+    padding: 10px 10px;
+    box-shadow: 0 0 2px 2px var(--blue-gray);
+    flex-direction: column;
+}
+
+.card-container form{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
