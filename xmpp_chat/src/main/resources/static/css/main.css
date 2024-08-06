@@ -12,10 +12,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: solid 1px var(--dark-royal-blue);
     border-radius: 1rem;
     padding: 10px 10px;
-    box-shadow: 0 0 2px 2px var(--blue-gray);
     flex-direction: column;
 }
 
@@ -24,4 +22,14 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+.simple-button{
+    border-radius: 1rem;
+    border:transparent;
+}
+
+.text-only-button{
+    background-color: transparent;
+    border:transparent;
 }

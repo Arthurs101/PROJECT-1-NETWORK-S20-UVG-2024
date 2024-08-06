@@ -1,0 +1,51 @@
+body{
+    overflow: hidden;
+    margin: 0;
+}
+#form-container{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border :none;
+    box-shadow: none;
+    border-radius: 0;
+}
+#login-form{
+    z-index: 10000;
+    width: 400px;
+    background: linear-gradient(27deg,var(--dark-royal-blue) 0%, var(--blue-gray ) 100%);
+    color: white;
+}
+a, a:hover, a:focus, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+#login-form h1{
+    font-family: "Lucida Console", monospace;
+    font-weight: bold;
+    font-size: x-large;
+}
+#overlay{
+   background-image: url(../images/login-background.webp);
+   border: none;
+   box-shadow: none;
+   width: 100vw;
+   height: 100vh;
+   opacity: 0.2;
+   position: absolute;
+}
+@media (max-width: 768px) {
+    #login-form{
+        width: 100%;
+        height: 100%;
+    }
+    body{
+        padding:0;
+    }
+}

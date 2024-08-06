@@ -9,4 +9,8 @@ public class XmppAuthController {
     public String loginPage(){
         return "login";
     }
+    @GetMapping("/register")
+    public String registerPage(){
+        return "register";
+    }
 }
