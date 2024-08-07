@@ -27,7 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>22</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -54,6 +54,28 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Smack dependencies -->
+		<dependency>
+		    <groupId>org.igniterealtime.smack</groupId>
+		    <artifactId>smack-java8-full</artifactId>
+		    <version>4.5.0-alpha3</version>
+		</dependency>
+	    <dependency>
+	      <groupId>org.igniterealtime.smack</groupId>
+	      <artifactId>smack-tcp</artifactId>
+	      <version>4.4.4</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.igniterealtime.smack</groupId>
+	      <artifactId>smack-im</artifactId>
+	      <version>4.4.4</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.igniterealtime.smack</groupId>
+	      <artifactId>smack-extensions</artifactId>
+	      <version>4.4.4</version>
+	    </dependency>
+
 	</dependencies>
 
 	<build>
