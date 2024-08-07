@@ -14,8 +14,8 @@
         <div class="card-container" id="login-form">
             <h1>Bienvenido a Xmpp Chat</h1>
             <p>Ingrese sus credenciales </p>
-            <form action="" method="" style="gap: 10px">
-                <input type="text" id="email" name="email" placeholder="someone@domain.com">
+            <form style="gap: 10px" th:action="@{/login}" method="post">
+                <input type="text"id="username" name="username" placeholder="someone@domain.com">
                 <input type="password" id="pwrd" name="pwrd">
                 <button type="submit" class="simple-button">Login</button>
                 <p>o</p>
