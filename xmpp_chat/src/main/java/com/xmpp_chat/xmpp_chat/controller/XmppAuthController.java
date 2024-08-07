@@ -25,22 +25,24 @@ public class XmppAuthController {
         return "login";
     }
     @PostMapping("/login")
-    public String postMethodName(@RequestParam String username, @RequestParam String pwrd, Model model) {
+    public String loginRquest(@RequestParam String username, @RequestParam String pwrd, Model model) {
         boolean isLoggedIn = false;
         try {
             isLoggedIn = xmppClient.connect(username, pwrd);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+            model.addAttribute("alertMessage", e.getMessage());
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SmackException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+            model.addAttribute("alertMessage", e.getMessage());
+        }
+         catch (SmackException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+        
         } catch (XMPPException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+            model.addAttribute("alertMessage", e.getMessage());
         }
 
         if (isLoggedIn) {
@@ -54,5 +56,38 @@ public class XmppAuthController {
     @GetMapping("/register")
     public String registerPage(){
         return "register";
+    }
+    @PostMapping("/register")
+    public String registerRequest(
+        @RequestParam String username, 
+        @RequestParam String pwrd, 
+        @RequestParam String email,
+        @RequestParam String fullName,
+        Model model) {
+        boolean isLoggedIn = false;
+        try {
+            isLoggedIn = xmppClient.register(username, pwrd, pwrd, username);
+        } catch (IOException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+        } catch (InterruptedException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+        }
+         catch (SmackException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+        
+        } catch (XMPPException e) {
+
+            model.addAttribute("alertMessage", e.getMessage());
+        }
+
+        if (isLoggedIn) {
+            return "redirect:/dashboard";
+        } else {
+            model.addAttribute("error", "Invalid username or password");
+            return "login"; // Return to the login page with an error
+        }
     }
 }

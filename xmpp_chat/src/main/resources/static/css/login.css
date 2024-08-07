@@ -2,6 +2,12 @@ body{
     overflow: hidden;
     margin: 0;
 }
+.alert {
+    padding: 20px;
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}
 #form-container{
     justify-content: center;
     align-items: center;

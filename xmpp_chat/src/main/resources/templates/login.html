@@ -21,6 +21,7 @@
                 <p>o</p>
                 <a href="/register" class="text-only-button">Registrarse</a>
             </form>
+            <div th:if="${alertMessage}" class="alert" th:text="${alertMessage}"></div>
         </div>
     </div>
 </body>
