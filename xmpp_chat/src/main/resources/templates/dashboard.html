@@ -5,11 +5,39 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>XMPPChat</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/login.css}'>
+    <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/main.css}'>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <h1>
-        THE DASHBOARD BOI
-    </h1>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="profile-details">
+                <div class="flex-divider profile-details-option">
+                    <p class="profile-name id"> SAMPLE USERNAME </p>
+                    <p class="simple-text" id="status"> SAMPLE STATUS</p>
+                </div>
+                <i class='bx bx-log-out profile-details-option' id="logout-button"></i>
+            </div>
+            <dic class="search-container">
+                <input type="text" placeholder="Buscar Chat">
+                <i class='bx bx-search' id="search-icon"></i>
+            </dic>
+            <div class="options">            
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="chat-header">
+                <p>Le header</p>
+            </div>
+            <div class="chat-wrapper">
+                <p>Le chat</p>
+            </div>
+            <div class="chat-input">
+                <i class='bx bx-paperclip'></i>
+                <input type="text" name="message" id="message">
+            </div>
+        </div>
+        
+    </div>
 </body>
 </html>

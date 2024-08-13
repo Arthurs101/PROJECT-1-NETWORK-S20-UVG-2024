@@ -7,6 +7,7 @@
 }
 body {
     display: flex;
+    margin: 0;
 }
 .card-container {
     display: flex;
@@ -15,6 +16,41 @@ body {
     border-radius: 1rem;
     padding: 10px 10px;
     flex-direction: column;
+}
+
+#status{
+    margin: 0;
+}
+
+#logout-button:before{
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+}
+
+.profile-details{
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 2px 5px 5px;
+
+}
+.profile-details-option:hover{
+    background-color: var(--blue-gray);
+    border-radius: 1rem;
+    color: black;
+}
+.flex-divider {
+    border-right: 1px solid var(--light-cream-yellow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding-right: 10px;
 }
 
 .card-container form{
@@ -32,4 +68,77 @@ body {
 .text-only-button{
     background-color: transparent;
     border:transparent;
+}
+
+.sidebar{
+    background-color: var(--dark-royal-blue);
+    width: 20vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+.search-container input {
+flex: 1;
+border: none;
+outline: none;
+padding: 10px;
+}
+
+#search-icon {
+position: absolute;
+right: 10px;
+font-size: 18px;
+color: #999;
+}
+
+.dashboard-container{
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    grid-gap: 0;
+}
+.dashboard-content{
+    background-color: #780000;
+    display: flex; /* Added flex display */
+    flex-grow: 1;
+    grid-area: "dashcontent";
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 20px;
+}
+.chat-input {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    border-top: var(--light-cream-yellow) solid 1px;
+    padding-top: 10px;
+}
+.chat-wrapper {
+    height: 85vh;
+    width: 80vw;
+    background-color:white;
+}
+.chat-header {
+    background-color: green;
+    flex-shrink: 0; /* Evita que se encoja */
+    flex-grow: 1;
+    width: 100%; /* Asegura que ocupa todo el ancho */
+}
+.chat-input > input {
+    width: 70vw;
 }
