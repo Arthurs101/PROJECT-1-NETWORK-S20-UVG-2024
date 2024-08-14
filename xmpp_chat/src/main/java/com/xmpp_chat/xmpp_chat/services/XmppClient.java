@@ -34,6 +34,8 @@ public class XmppClient {
     @Value("${xmpp.host}")
     private String host;
 
+
+
     public boolean connect(String username, String password) throws IOException, InterruptedException, SmackException, XMPPException {
         
         XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
@@ -79,18 +81,6 @@ public class XmppClient {
             System.out.println("El servidor no soporta la creación de cuentas");
         }
         return false;
-}
-
-    public void sendMessage(String to, String messageBody) throws XmppStringprepException, SmackException.NotConnectedException, InterruptedException {
-        if (connection != null && connection.isAuthenticated()) {
-            ChatManager chatManager = ChatManager.getInstanceFor(this.connection);
-            System.out.println(to + "@" + this.domain);
-            Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(to + "@" + this.domain));
-            chat.send(messageBody);
-            
-        } else {
-            System.out.println("No auth session available");
-        }
     }
 
     public boolean DeleteAccount() {
@@ -122,5 +112,25 @@ public class XmppClient {
             System.out.println("No has iniciado sesión.");
         }
     }
+
+    public void sendMessage(String to, String messageBody) throws XmppStringprepException, SmackException.NotConnectedException, InterruptedException {
+        if (connection != null && connection.isAuthenticated()) {
+            ChatManager chatManager = ChatManager.getInstanceFor(this.connection);
+            System.out.println(to + "@" + this.domain);
+            Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(to + "@" + this.domain));
+            chat.send(messageBody);
+            
+        } else {
+            System.out.println("No auth session available");
+        }
+    }
+
+    public ChatManager getChatManagerListener() {
+        ChatManager chatManager = ChatManager.getInstanceFor(connection);
+
+        return chatManager;
+    }
+    
+    
 }
 

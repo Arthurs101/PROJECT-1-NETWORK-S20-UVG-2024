@@ -22,14 +22,26 @@
                 <input type="text" placeholder="Buscar Chat">
                 <i class='bx bx-search' id="search-icon"></i>
             </dic>
-            <div class="options">            
+            <div class="chats">      
+                <!-- all usernames of chats should display here       -->
+                <div class="chats">
+                    <ul>
+                        <!-- Assuming Thymeleaf is used to render the chats list -->
+                        <li th:each="chat : ${activeChats}">
+                            <a href="#" th:text="${chat}" th:onclick="'showChat(' + '${chat}' + ')'"></a>
+                        </li>
+                </ul>
             </div>
+        </div>
+        
         </div>
         <div class="dashboard-content">
             <div class="chat-header">
+                <!-- current username of the chat that is oppenned -->
                 <p>Le header</p>
             </div>
             <div class="chat-wrapper">
+                <!-- the messages of the current chat -->
                 <p>Le chat</p>
             </div>
             <div class="chat-input">
@@ -37,9 +49,8 @@
                 <input type="text" name="message" id="message" placeholder="Type your message">
                 <button type="button" id="send-button">Send</button>
             </div>            
-        </div>
-        
     </div>
+    
 </body>
 <script>
     document.getElementById("send-button").addEventListener("click", function() {
