@@ -34,10 +34,33 @@
             </div>
             <div class="chat-input">
                 <i class='bx bx-paperclip'></i>
-                <input type="text" name="message" id="message">
-            </div>
+                <input type="text" name="message" id="message" placeholder="Type your message">
+                <button type="button" id="send-button">Send</button>
+            </div>            
         </div>
         
     </div>
 </body>
+<script>
+    document.getElementById("send-button").addEventListener("click", function() {
+        let message = document.getElementById("message").value;
+
+        fetch('/message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({message: message , destination:"arg21527"})
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log("Message sent: ", data);
+            document.getElementById("message").value = "";  // Clear the input field
+        })
+        .catch(error => {
+            console.error("Error sending message: ", error);
+        });
+    });
+</script>
+
 </html>
