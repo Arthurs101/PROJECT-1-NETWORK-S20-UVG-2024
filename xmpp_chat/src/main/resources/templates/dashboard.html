@@ -7,6 +7,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/main.css}'>
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    
 </head>
 <body>
     <div class="dashboard-container">
@@ -28,7 +29,7 @@
                     <ul>
                         <!-- Assuming Thymeleaf is used to render the chats list -->
                         <li th:each="chat : ${activeChats}">
-                            <a href="#" th:text="${chat}" th:onclick="'showChat(' + '${chat}' + ')'"></a>
+                            <a href="#" th:text="${chat}" th:attr="onclick=|showChat('${chat}')|"></a>
                         </li>
                 </ul>
             </div>
@@ -52,26 +53,5 @@
     </div>
     
 </body>
-<script>
-    document.getElementById("send-button").addEventListener("click", function() {
-        let message = document.getElementById("message").value;
-
-        fetch('/message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({message: message , destination:"arg21527"})
-        })
-        .then(response => response.text())
-        .then(data => {
-            console.log("Message sent: ", data);
-            document.getElementById("message").value = "";  // Clear the input field
-        })
-        .catch(error => {
-            console.error("Error sending message: ", error);
-        });
-    });
-</script>
-
+<script type="text/javascript" th:src='@{/js/dashboard.js}'></script>
 </html>

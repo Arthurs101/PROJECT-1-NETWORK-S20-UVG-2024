@@ -10,17 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.xmpp_chat.xmpp_chat.Models.ChatMessageDTO;
 import com.xmpp_chat.xmpp_chat.services.XmppClient;
 
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Controller
 public class XmppDashboardController {
     @Autowired
     private XmppClient xmppClient;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     private Map<String, List<String>> activeChatsMap = new HashMap<>(); // Stores active chats
 
@@ -29,7 +36,9 @@ public class XmppDashboardController {
         ChatManager chatManager = xmppClient.getChatManagerListener();
         chatManager.addIncomingListener((from, message, chat) -> {
             this.activeChatsMap.computeIfAbsent(from.toString(), k -> new ArrayList<>()).add(message.getBody());
-            System.out.println("Recevied message " + from + ":" + message.getBody());
+            // Convert the XMPP message to a DTO and send it via WebSocket
+            ChatMessageDTO chatMessageDTO = new ChatMessageDTO(from.toString(), message.getBody());
+            messagingTemplate.convertAndSend("/topic/messages", chatMessageDTO);
         });
         model.addAttribute("activeChats", new ArrayList<String>(this.activeChatsMap.keySet()));
         return "dashboard";
@@ -49,4 +58,11 @@ public class XmppDashboardController {
     return "Message received: " + message;
    }
     
+    @GetMapping("/chat/{username}")
+    @ResponseBody
+    public List<String> getChatMessages(@PathVariable("username") String username) {
+        System.out.println("Received request for " + username );
+        System.out.println("Keys are: "+ activeChatsMap.keySet().toString());
+        return activeChatsMap.getOrDefault(username, new ArrayList<>());
+    }
 }
