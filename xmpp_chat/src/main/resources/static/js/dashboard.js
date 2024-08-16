@@ -1,3 +1,26 @@
+'use strict';
+//handling of a web socket connection
+const nickname = document.querySelector('#profile-name').textContent.trim();
+
+
+console.log(nickname);
+
+const socket = new SockJS('/ws');
+const stompClient = Stomp.over(socket);
+
+
+if (nickname) {
+    stompClient.connect({}, onConnected, onError);
+}
+
+function onConnected() {
+    stompClient.subscribe(`/user/${nickname}/queue/messages`, onMessageReceived);
+}
+
+function onError() {
+    console.log('socket was not able to be used')
+}
+
 document.getElementById("send-button").addEventListener("click", function() {
     let message = document.getElementById("message").value;
 
@@ -17,6 +40,36 @@ document.getElementById("send-button").addEventListener("click", function() {
         console.error("Error sending message: ", error);
     });
 });
+
+function onMessageReceived(payload){
+    console.log("Recevied a meessage")
+    const message = JSON.parse(payload.body);
+    console.log(message);
+    console.log(message.from);
+    console.log(message.body);
+    var chatHeader = document.querySelector('#current-chat-username');
+    var chatWrapper = document.querySelector('.chat-wrapper');
+    if (chatHeader.textContent === message.from) {
+        // Append the message to the chat wrapper
+        var p = document.createElement('p');
+        p.textContent = message.body;
+        chatWrapper.appendChild(p);
+    }
+
+    // Check if the user is already in the sidebar; if not, add them
+    var chatList = document.querySelector('.chats ul');
+    var existingUserLink = chatList.querySelector('a[onclick*="' + message.from + '"]');
+    if (!existingUserLink) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = "#";
+        a.textContent = message.from;
+        a.setAttribute("onclick", "showChat('" + message.from + "')");
+        li.appendChild(a);
+        chatList.appendChild(li);
+    }
+}
+
 
 // rendering the messages 
 function showChat(username) {
@@ -41,35 +94,3 @@ function showChat(username) {
         })
         .catch(error => console.error('Error fetching chat messages:', error));
 }
-
-//handling of a web socket connection
-var socket = new WebSocket("ws://localhost:8080/chat");
-
-    socket.onmessage = function(event) {
-        var messageData = JSON.parse(event.data);
-        var fromUser = messageData.from;
-        var messageBody = messageData.body;
-
-        // Check if the chat from this user is already open
-        var chatWrapper = document.querySelector('.chat-wrapper');
-        var chatHeader = document.querySelector('.chat-header p');
-        if (chatHeader.textContent === fromUser) {
-            // Append the message to the chat wrapper
-            var p = document.createElement('p');
-            p.textContent = messageBody;
-            chatWrapper.appendChild(p);
-        }
-
-        // Check if the user is already in the sidebar; if not, add them
-        var chatList = document.querySelector('.chats ul');
-        var existingUserLink = chatList.querySelector('a[onclick*="' + fromUser + '"]');
-        if (!existingUserLink) {
-            var li = document.createElement('li');
-            var a = document.createElement('a');
-            a.href = "#";
-            a.textContent = fromUser;
-            a.setAttribute("onclick", "showChat('" + fromUser + "')");
-            li.appendChild(a);
-            chatList.appendChild(li);
-        }
-    };

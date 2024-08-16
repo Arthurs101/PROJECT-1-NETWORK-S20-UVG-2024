@@ -28,6 +28,7 @@ public class XmppClient {
     }return singleton; }
     private XMPPTCPConnection connection;
     private AccountManager accountManager;
+    private String currUsername;
     @Value("${xmpp.domain}")
     private String domain;
 
@@ -37,7 +38,7 @@ public class XmppClient {
 
 
     public boolean connect(String username, String password) throws IOException, InterruptedException, SmackException, XMPPException {
-        
+
         XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(username, password)
             .setXmppDomain(domain)
@@ -49,6 +50,7 @@ public class XmppClient {
         connection = new XMPPTCPConnection(config);
         connection.connect();
         connection.login();
+        this.currUsername = username;
         return connection.isConnected();
     }
 
@@ -76,6 +78,7 @@ public class XmppClient {
             attributes.put("email", email);
             attributes.put("name", fullName);
             accountManager.createAccount(localUsr, password,attributes);
+            this.currUsername = username;
             return true;
         } else {
             System.out.println("El servidor no soporta la creación de cuentas");
@@ -129,6 +132,10 @@ public class XmppClient {
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
 
         return chatManager;
+    }
+
+    public String getUsername() {
+        return this.currUsername;
     }
     
     

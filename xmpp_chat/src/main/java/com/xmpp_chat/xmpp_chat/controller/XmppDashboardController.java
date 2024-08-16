@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xmpp_chat.xmpp_chat.Models.ChatMessageDTO;
 import com.xmpp_chat.xmpp_chat.services.XmppClient;
-
-
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Controller
 public class XmppDashboardController {
@@ -33,14 +31,16 @@ public class XmppDashboardController {
 
     @GetMapping("/dashboard")
     public String getDashboard(Model model) {
+        //render the dashboard and set a listener for any incoming messages
         ChatManager chatManager = xmppClient.getChatManagerListener();
         chatManager.addIncomingListener((from, message, chat) -> {
             this.activeChatsMap.computeIfAbsent(from.toString(), k -> new ArrayList<>()).add(message.getBody());
             // Convert the XMPP message to a DTO and send it via WebSocket
             ChatMessageDTO chatMessageDTO = new ChatMessageDTO(from.toString(), message.getBody());
-            messagingTemplate.convertAndSend("/topic/messages", chatMessageDTO);
+            messagingTemplate.convertAndSendToUser(xmppClient.getUsername(), "/queue/messages", chatMessageDTO);
         });
         model.addAttribute("activeChats", new ArrayList<String>(this.activeChatsMap.keySet()));
+        model.addAttribute("nickname", xmppClient.getUsername());
         return "dashboard";
     }
     

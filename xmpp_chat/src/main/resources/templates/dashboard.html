@@ -7,14 +7,16 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/main.css}'>
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-    
+    <!-- Include SockJS and Stomp.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="sidebar">
             <div class="profile-details">
                 <div class="flex-divider profile-details-option">
-                    <p class="profile-name id"> SAMPLE USERNAME </p>
+                    <p class="profile-name id" id="profile-name" th:text="${nickname}"></p>
                     <p class="simple-text" id="status"> SAMPLE STATUS</p>
                 </div>
                 <i class='bx bx-log-out profile-details-option' id="logout-button"></i>
@@ -39,7 +41,7 @@
         <div class="dashboard-content">
             <div class="chat-header">
                 <!-- current username of the chat that is oppenned -->
-                <p>Le header</p>
+                <p id="current-chat-username">Le header</p>
             </div>
             <div class="chat-wrapper">
                 <!-- the messages of the current chat -->
