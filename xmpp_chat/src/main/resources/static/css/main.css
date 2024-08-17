@@ -142,3 +142,9 @@ color: #999;
 .chat-input > input {
     width: 70vw;
 }
+.sent-message{
+    background-color: var(--blue-gray);
+}
+.received-message{
+    background-color: var(--dark-royal-blue)
+}

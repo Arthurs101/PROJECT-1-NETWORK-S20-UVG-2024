@@ -19,7 +19,9 @@
                     <p class="profile-name id" id="profile-name" th:text="${nickname}"></p>
                     <p class="simple-text" id="status"> SAMPLE STATUS</p>
                 </div>
-                <i class='bx bx-log-out profile-details-option' id="logout-button"></i>
+                <form th:action="@{/logout}" method="post" id="logout-form">
+                    <input type="submit" name="logout" id="logout-button"/>
+                </form>
             </div>
             <dic class="search-container">
                 <input type="text" placeholder="Buscar Chat">

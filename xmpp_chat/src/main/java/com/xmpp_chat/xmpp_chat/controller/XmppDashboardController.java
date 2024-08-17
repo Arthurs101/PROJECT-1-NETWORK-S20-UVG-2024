@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xmpp_chat.xmpp_chat.Models.ChatMessageDTO;
 import com.xmpp_chat.xmpp_chat.services.XmppClient;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Controller
 public class XmppDashboardController {
@@ -42,6 +44,12 @@ public class XmppDashboardController {
         model.addAttribute("activeChats", new ArrayList<String>(this.activeChatsMap.keySet()));
         model.addAttribute("nickname", xmppClient.getUsername());
         return "dashboard";
+    }
+    @PostMapping("/logout")
+    public String logout() {
+        System.out.println("it should log out");
+        xmppClient.disconnect();
+        return "redirect:/login";
     }
     
 
