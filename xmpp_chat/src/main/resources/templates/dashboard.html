@@ -63,7 +63,7 @@
             </dic>
             <div class="chats" id="sidebar-chat-container">      
                 <!-- all usernames of chats should display here -->
-                <ul>
+                <ul id="current-chat-list">
                     <!-- render all the retrieved chats -->
                     <li th:each="chat : ${activeChats}" class="chat-item-container"
                     th:attr="onclick=|showChat('${chat}')|,id=${chat}"
@@ -75,7 +75,12 @@
                         class="chat-username-ref"></a>
                     </li>
                 </ul>
-        </div>
+            </div>
+            <div class="chats" id="sidebar-contacts-container" display="none">
+                <ul id="contact-list">
+                    
+                </ul>
+            </div>
         
         </div>
         <div class="dashboard-content">

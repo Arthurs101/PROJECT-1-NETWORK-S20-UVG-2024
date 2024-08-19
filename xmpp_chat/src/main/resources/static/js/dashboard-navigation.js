@@ -1,5 +1,6 @@
-
+Settingsredered = false;
 document.getElementById("profile-details-option").addEventListener('click',function(){
+    if(!Settingsredered){
     //hide the chats from the navbar
     let chatsSidebar = document.getElementById('sidebar-chat-container');
     chatsSidebar.style.display = 'none';
@@ -22,28 +23,40 @@ document.getElementById("profile-details-option").addEventListener('click',funct
     document.getElementById("back-to-chats").style.display = 'inherit';
     document.getElementById("add-contact").style.display = 'inherit';
 
+    //show the contacts list container
+    document.getElementById("sidebar-contacts-container").style.display = 'inherit';
+
     fetch('/get-contacts', {
         method: 'GET'
         })
         .then(response => response.text())
         .then(data => {
-            console.log(data)
+            var contactList = document.getElementById('contact-list');
+            contactList.innerHTML = "";
+            contacts = JSON.parse(data);
+            contacts.forEach(contact => {
+                var userLI = createUsernameListElement(contact['jid'])
+                contactList.appendChild(userLI);
+            });
         })
         .catch(error => {
             console.error("Error getting contacts ", error);
         });
+        Settingsredered = true;
+    }
 })
 //handle the change back into chats
 document.getElementById("back-to-chats").addEventListener('click',function(){
-    //hide the chats from the navbar
+    Settingsredered = false;
+    //show the chats from the navbar
     let chatsSidebar = document.getElementById('sidebar-chat-container');
     chatsSidebar.style.display = 'inherit';
-    //hide the chat options menu
+    //show the chat options menu
     let grupalOptions = document.getElementById('grupal-chat-container');
     grupalOptions.style.display = 'inherit';
     let newChatOptions = document.getElementById('new-chat');
     newChatOptions.style.display = 'inherit';
-    //hide the messages and chatting display
+    //show the messages and chatting display
     let messagesDisplay = document.getElementById('chat-page')
     messagesDisplay.classList.remove('inactive')
     messagesDisplay.classList.add('active')
@@ -52,9 +65,11 @@ document.getElementById("back-to-chats").addEventListener('click',function(){
     let userSettings = document.getElementById('user-settings')
     userSettings.classList.remove('active')
     userSettings.classList.add('inactive')
-
+    
     document.getElementById("back-to-chats").style.display = 'none';
     document.getElementById("add-contact").style.display = 'none';
+    // hide the contact list:
+    document.getElementById("sidebar-contacts-container").style.display = 'none';
 })
 
 document.getElementById("add-contact").addEventListener('click', async function() { 

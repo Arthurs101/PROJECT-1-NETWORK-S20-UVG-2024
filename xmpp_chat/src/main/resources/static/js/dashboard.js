@@ -58,7 +58,6 @@ function onError() {
 
 
 function renderMessage(message, received) {
-    console.log('rendering message');
     var chatWrapper = document.querySelector('.chat-wrapper');
     var p = document.createElement('p');
     p.textContent = message;
@@ -89,9 +88,7 @@ function createUsernameListElement(chat){
     chatUsernameAnchor.classList.add('chat-username-ref');
     chatUsernameAnchor.textContent = chat.substring(0, chat.indexOf('@'));
     li.appendChild(chatUsernameAnchor);
-
     return li;
-
 }
 function onMessageReceived(payload){
     console.log("Received a message");
@@ -99,7 +96,7 @@ function onMessageReceived(payload){
    
     var chatHeader = document.querySelector('#current-chat-username');
     // Check if the user is already in the sidebar; if not, add them
-    var chatList = document.querySelector('.chats ul');
+    var chatList = document.getElementById('current-chat-list');
     var existingUserLink = document.getElementById(`${message.from}`);
     console.log(existingUserLink)
     if (!existingUserLink) {
@@ -119,6 +116,15 @@ function onMessageReceived(payload){
 
 // Rendering the messages from history
 function showChat(username) {
+    let messagesDisplay = document.getElementById('chat-page')
+    if (messagesDisplay.classList.contains('inactive')){
+        let userSettings = document.getElementById('user-settings')
+        userSettings.classList.remove('active')
+        userSettings.classList.add('inactive')
+        messagesDisplay.classList.remove('inactive')
+        messagesDisplay.classList.add('active')
+        Settingsredered = false;
+    }
     console.log("showing chat")
     var chatWrapper = document.querySelector('.chat-wrapper');
     chatWrapper.innerHTML = '';
