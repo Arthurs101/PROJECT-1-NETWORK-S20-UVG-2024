@@ -119,8 +119,7 @@ public class XmppClient {
     public void sendMessage(String to, String messageBody) throws XmppStringprepException, SmackException.NotConnectedException, InterruptedException {
         if (connection != null && connection.isAuthenticated()) {
             ChatManager chatManager = ChatManager.getInstanceFor(this.connection);
-            System.out.println(to + "@" + this.domain);
-            Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(to + "@" + this.domain));
+            Chat chat = chatManager.chatWith(JidCreate.entityBareFrom(to));
             chat.send(messageBody);
             
         } else {

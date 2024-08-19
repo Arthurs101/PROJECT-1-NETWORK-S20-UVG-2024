@@ -20,7 +20,11 @@
                     <p class="simple-text" id="status"> SAMPLE STATUS</p>
                 </div>
                 <form th:action="@{/logout}" method="post" id="logout-form">
-                    <input type="submit" name="logout" id="logout-button"/>
+                    <div class="logout-container">
+                        <i class='bx bx-log-out' id="logout-icon"></i>
+                        <input type="submit" name="logout" id="logout-button" style="display:none;" />
+                    </div>
+                    
                 </form>
             </div>
             <dic class="search-container">
@@ -28,29 +32,33 @@
                 <i class='bx bx-search' id="search-icon"></i>
             </dic>
             <div class="chats">      
-                <!-- all usernames of chats should display here       -->
-                <div class="chats">
-                    <ul>
-                        <!-- Assuming Thymeleaf is used to render the chats list -->
-                        <li th:each="chat : ${activeChats}">
-                            <a href="#" th:text="${chat}" th:attr="onclick=|showChat('${chat}')|"></a>
-                        </li>
+                <!-- all usernames of chats should display here -->
+                <ul>
+                    <!-- render all the retrieved chats -->
+                    <li th:each="chat : ${activeChats}" class="chat-item-container"
+                    th:attr="onclick=|showChat('${chat}')|"
+                    th:classappend="${chat.substring(0, chat.indexOf('@')) == currentChatUsername ? ' active' : ''}">
+                        <span  class="chat-initial">
+                            <p th:text="${#strings.capitalize(#strings.substring(chat, 0, 1))}"></p>
+                        </span>
+                        <a th:text="${#strings.substring(chat, 0, chat.indexOf('@'))}" 
+                        class="chat-username-ref"></a>
+                    </li>
                 </ul>
-            </div>
         </div>
         
         </div>
         <div class="dashboard-content">
             <div class="chat-header">
                 <!-- current username of the chat that is oppenned -->
-                <p id="current-chat-username">Le header</p>
+                <p id="current-chat-username"></p>
             </div>
             <div class="chat-wrapper">
                 <!-- the messages of the current chat -->
-                <p>Le chat</p>
+                <p></p>
             </div>
             <div class="chat-input">
-                <i class='bx bx-paperclip'></i>
+                <i class='bx bx-paperclip' id="attach-file-button"></i>
                 <input type="text" name="message" id="message" placeholder="Type your message">
                 <button type="button" id="send-button">Send</button>
             </div>            

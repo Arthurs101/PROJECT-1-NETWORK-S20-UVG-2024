@@ -60,6 +60,7 @@ public class XmppDashboardController {
     String message = payload.get("message");
     String destination = payload.get("destination");
     System.out.println("Received message: " + message);
+    System.out.println("to destination: " + destination);
     // Process the message here (e.g., broadcast to other users, save to DB, etc.)
     try{xmppClient.sendMessage(destination,message);}
     catch(Exception e){return e.getMessage();}

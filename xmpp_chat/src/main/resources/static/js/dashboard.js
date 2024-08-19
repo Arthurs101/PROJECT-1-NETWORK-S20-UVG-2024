@@ -1,33 +1,23 @@
 'use strict';
 // Handling of a WebSocket connection
 const nickname = document.querySelector('#profile-name').textContent.trim();
-console.log(nickname);
-
 const socket = new SockJS('/ws');
 const stompClient = Stomp.over(socket);
 var currentHistorical = {};
 
-if (nickname) {
-    stompClient.connect({}, onConnected, onError);
-}
-
-function onConnected() {
-    stompClient.subscribe(`/user/${nickname}/queue/messages`, onMessageReceived);
-}
-
-function onError() {
-    console.log('socket was not able to be used');
-}
-
 //ad an action to logout
-document.getElementById('logout-button').addEventListener('click',function(){
+document.getElementById("logout-icon").addEventListener('click',function(){
     currentHistorical = {};
+    document.getElementById('logout-form').submit();
+    
 })
 
-
+//handle the submision of the messages
 document.getElementById("send-button").addEventListener("click", function() {
     let message = document.getElementById("message").value;
-    let destination = document.querySelector('#current-chat-username').textContent.trim(); // Fixed retrieval
+    let destination = document.getElementById('current-chat-username').textContent.trim(); // Fixed retrieval
+    console.log("sending message", message);
+    console.log("destination", destination);
     fetch('/message', {
         method: 'POST',
         headers: {
@@ -51,6 +41,21 @@ document.getElementById("send-button").addEventListener("click", function() {
         console.error("Error sending message: ", error);
     });
 });
+
+
+if (nickname) {
+    stompClient.connect({}, onConnected, onError);
+}
+
+function onConnected() {
+    stompClient.subscribe(`/user/${nickname}/queue/messages`, onMessageReceived);
+}
+
+function onError() {
+    console.log('socket was not able to be used');
+}
+
+
 
 function renderMessage(message, received) {
     var chatWrapper = document.querySelector('.chat-wrapper');
@@ -102,4 +107,18 @@ function showChat(username) {
 
     var chatHeader = document.querySelector('.chat-header p');
     chatHeader.textContent = username;
+
+    // Handle the "active" class
+    var chatItems = document.querySelectorAll('.chat-item-container');
+    console.log(chatItems);
+    chatItems.forEach(function(item) {
+        item.classList.remove('active');
+        // Get the username from the chat item
+        var chatUsername = item.querySelector('.chat-username-ref').textContent;
+        console.log(chatUsername)
+        if (chatUsername + "@alumchat.lol" === username) {
+            item.classList.add('active');
+        }
+    });
 }
+
