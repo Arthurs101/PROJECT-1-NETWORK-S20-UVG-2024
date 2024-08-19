@@ -6,6 +6,7 @@
     <title>XMPPChat</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/main.css}'>
+    <link rel='stylesheet' type='text/css' media='screen' th:href='@{/css/dashboard.css}'>
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <!-- Include SockJS and Stomp.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
@@ -27,6 +28,20 @@
                     
                 </form>
             </div>
+            <div class="options-container">
+                <div class="option" id="grupal-chat-container">
+                    <i class='bx bx-group'></i>
+                    <p>
+                        nuevo grupo
+                    </p>
+                </div>
+                <div class="option" id="new-chat">
+                    <i class='bx bxs-message-add'></i>
+                    <p>
+                        nuevo chat
+                    </p>
+                </div>
+            </div>
             <dic class="search-container">
                 <input type="text" placeholder="Buscar Chat">
                 <i class='bx bx-search' id="search-icon"></i>
@@ -36,7 +51,7 @@
                 <ul>
                     <!-- render all the retrieved chats -->
                     <li th:each="chat : ${activeChats}" class="chat-item-container"
-                    th:attr="onclick=|showChat('${chat}')|"
+                    th:attr="onclick=|showChat('${chat}')|,id=${chat}"
                     th:classappend="${chat.substring(0, chat.indexOf('@')) == currentChatUsername ? ' active' : ''}">
                         <span  class="chat-initial">
                             <p th:text="${#strings.capitalize(#strings.substring(chat, 0, 1))}"></p>
@@ -49,21 +64,46 @@
         
         </div>
         <div class="dashboard-content">
-            <div class="chat-header">
-                <!-- current username of the chat that is oppenned -->
-                <p id="current-chat-username"></p>
+            <div class="nav-page active" id="chat-page">
+                <div class="chat-header">
+                    <!-- current username of the chat that is oppenned -->
+                    <p id="current-chat-username"></p>
+                </div>
+                <div class="chat-wrapper">
+                    <!-- the messages of the current chat -->
+                    <p></p>
+                </div>
+                <div class="chat-input">
+                    <i class='bx bx-paperclip' id="attach-file-button"></i>
+                    <input type="text" name="message" id="message" placeholder="Type your message">
+                    <button type="button" id="send-button">Send</button>
+                </div>            
             </div>
-            <div class="chat-wrapper">
-                <!-- the messages of the current chat -->
-                <p></p>
+            <div class="nav-page inactive" id="user-settings">
+                <div class="custom-dropdown">
+                    <div class="dropdown-selected">
+                        <div class="status-color-circle active"></div>
+                        <p>Disponible</p>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                    <div class="dropdown-options">
+                        <div class="dropdown-option" data-value="disponible">
+                            <div class="status-color-circle active"></div>
+                            <p>Disponible</p>
+                        </div>
+                        <div class="dropdown-option" data-value="ausente">
+                            <div class="status-color-circle inactive"></div>
+                            <p>Ausente</p>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="status-dropdown" id="status-dropdown" value="disponible">
+                
             </div>
-            <div class="chat-input">
-                <i class='bx bx-paperclip' id="attach-file-button"></i>
-                <input type="text" name="message" id="message" placeholder="Type your message">
-                <button type="button" id="send-button">Send</button>
-            </div>            
+            
     </div>
     
 </body>
 <script type="text/javascript" th:src='@{/js/dashboard.js}'></script>
+<script type="text/javascript" th:src='@{/js/customslection.js}'></script>
 </html>

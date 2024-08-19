@@ -1,0 +1,127 @@
+.options-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--light-cream-yellow);
+    width: 100%;
+    margin-top: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+.option{
+    border-radius: 2px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.option p{
+    display: none;
+    margin: 0;
+}
+.option:hover{
+    background-color: var(--blue-gray);
+}
+.option i {
+    font-size:24px;
+    color: white;
+}
+.option:hover p{
+    display: inherit;
+    color:white
+}
+.nav-page{
+    height: 100%;
+}
+.nav-page.inactive{
+    display: none;
+}
+.nav-page.acticve{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.status-color-circle{
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+}
+
+.status-dropdown .option:hover *{
+    background-color: yellowgreen;
+}
+.status-color-circle.active{
+    background-color: green;
+}
+
+.custom-dropdown {
+    position: relative;
+    width: 200px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+}
+
+.dropdown-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.dropdown-selected p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.dropdown-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 10;
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.dropdown-option:hover {
+    background-color: #e0e0e0;
+}
+
+.dropdown-option p {
+    margin: 0;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.status-color-circle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-color-circle.active {
+    background-color: green;
+}
+
+.status-color-circle.inactive {
+    background-color: red;
+}
+
+.bx-chevron-down {
+    font-size: 20px;
+    margin-left: 10px;
+}
