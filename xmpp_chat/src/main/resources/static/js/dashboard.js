@@ -4,13 +4,15 @@ const nickname = document.querySelector('#profile-name').textContent.trim();
 const socket = new SockJS('/ws');
 const stompClient = Stomp.over(socket);
 var currentHistorical = {};
-
+let isConnected = false;
 //ad an action to logout
 document.getElementById("logout-icon").addEventListener('click',function(){
     currentHistorical = {};
     document.getElementById('logout-form').submit();
     
 })
+
+
 
 //handle the submision of the messages
 document.getElementById("send-button").addEventListener("click", function() {
@@ -41,10 +43,12 @@ document.getElementById("send-button").addEventListener("click", function() {
 
 
 if (nickname) {
-    stompClient.connect({}, onConnected, onError);
+    if(!isConnected) {
+    stompClient.connect({}, onConnected, onError);}
 }
 
 function onConnected() {
+    isConnected = true
     stompClient.subscribe(`/user/${nickname}/queue/messages`, onMessageReceived);
 }
 

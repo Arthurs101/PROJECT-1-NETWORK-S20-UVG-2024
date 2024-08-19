@@ -67,6 +67,24 @@ public class XmppDashboardController {
     return "Message received: " + message;
    }
     
+    @PostMapping("/add-contact")
+    @ResponseBody
+    public String addContact(@RequestBody Map<String, String> payload) {
+        try {
+            xmppClient.addContact(payload.get("contactJid"));
+            return "succes";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to add contact: " + e.getMessage();
+        }
+    }
+    @GetMapping("/get-contacts")
+    @ResponseBody
+    public List<Map<String, String>> getContacts() {
+        try {return xmppClient.getContacts();}
+        catch(Exception e){return new ArrayList<Map<String, String>>();}
+        
+    }
     @GetMapping("/chat/{username}")
     @ResponseBody
     public List<String> getChatMessages(@PathVariable("username") String username) {

@@ -38,7 +38,7 @@ body {
     padding: 2px 2px 5px 5px;
 
 }
-.profile-details-option:hover{
+#profile-details-option:hover{
     background-color: var(--blue-gray);
     border-radius: 1rem;
     color: black;

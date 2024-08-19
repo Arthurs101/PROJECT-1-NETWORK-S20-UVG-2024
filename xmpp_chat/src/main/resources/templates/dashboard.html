@@ -11,12 +11,14 @@
     <!-- Include SockJS and Stomp.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="sweetalert2.all.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="sidebar">
             <div class="profile-details">
-                <div class="flex-divider profile-details-option">
+                <div class="flex-divider" id="profile-details-option">
                     <p class="profile-name id" id="profile-name" th:text="${nickname}"></p>
                     <p class="simple-text" id="status"> SAMPLE STATUS</p>
                 </div>
@@ -41,12 +43,25 @@
                         nuevo chat
                     </p>
                 </div>
+                <div class="option" id="back-to-chats" style="display:none">
+                    <i class='bx bx-arrow-back' ></i>
+                    <p>
+                        regresar a chats
+                    </p>
+                </div>
+                <div class="option" id="add-contact" style="display:none">
+                    <i class='bx bxs-user-plus'></i>
+                    <p>
+                        agregar un contacto
+                    </p>
+                </div>
+               
             </div>
             <dic class="search-container">
                 <input type="text" placeholder="Buscar Chat">
                 <i class='bx bx-search' id="search-icon"></i>
             </dic>
-            <div class="chats">      
+            <div class="chats" id="sidebar-chat-container">      
                 <!-- all usernames of chats should display here -->
                 <ul>
                     <!-- render all the retrieved chats -->
@@ -87,13 +102,21 @@
                         <i class='bx bx-chevron-down'></i>
                     </div>
                     <div class="dropdown-options">
-                        <div class="dropdown-option" data-value="disponible">
+                        <div class="dropdown-option">
                             <div class="status-color-circle active"></div>
                             <p>Disponible</p>
                         </div>
-                        <div class="dropdown-option" data-value="ausente">
-                            <div class="status-color-circle inactive"></div>
+                        <div class="dropdown-option" data-value="disponible">
+                            <div class="status-color-circle absent"></div>
                             <p>Ausente</p>
+                        </div>
+                        <div class="dropdown-option" data-value="no disponible">
+                            <div class="status-color-circle inactive"></div>
+                            <p>No Disponible</p>
+                        </div>
+                        <div class="dropdown-option" data-value="ocupado">
+                            <div class="status-color-circle busy">-</div>
+                            <p>Ocupado</p>
                         </div>
                     </div>
                 </div>
@@ -106,4 +129,5 @@
 </body>
 <script type="text/javascript" th:src='@{/js/dashboard.js}'></script>
 <script type="text/javascript" th:src='@{/js/customslection.js}'></script>
+<script type="text/javascript" th:src='@{/js/dashboard-navigation.js}'></script>
 </html>

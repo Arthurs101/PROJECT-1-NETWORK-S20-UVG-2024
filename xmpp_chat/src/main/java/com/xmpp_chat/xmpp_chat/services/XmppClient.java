@@ -1,6 +1,8 @@
 package com.xmpp_chat.xmpp_chat.services;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -9,6 +11,8 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
@@ -137,6 +141,44 @@ public class XmppClient {
         return this.currUsername;
     }
     
+    public void addContact(String contactName) throws SmackException.NotLoggedInException, SmackException.NoResponseException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, XmppStringprepException {
+        Roster roster = Roster.getInstanceFor(connection);
+        // Add the contact
+        EntityBareJid jid = JidCreate.entityBareFrom(contactName);
+        roster.createEntry(jid, contactName,null);
+    }
     
+    public List<Map<String, String>> getContacts() throws Exception {
+    Roster roster = Roster.getInstanceFor(connection);
+        if (!roster.isLoaded()) {
+            roster.reloadAndWait();
+        }
+
+        List<Map<String, String>> contacts = new ArrayList<>();
+        for (RosterEntry entry : roster.getEntries()) {
+            Map<String, String> contactInfo = new HashMap<>();
+            contactInfo.put("jid", entry.getJid().toString());
+            contactInfo.put("name", entry.getName() != null ? entry.getName() : entry.getJid().toString());
+            contactInfo.put("status", roster.getPresence(entry.getJid()).getStatus());
+            contactInfo.put("groups", getGroups(entry));
+            contacts.add(contactInfo);
+        }
+    
+    return contacts;
+    }
+    private String getGroups(RosterEntry entry) {
+        List<RosterGroup> groups = entry.getGroups();
+        if (groups.isEmpty()) {
+            return "";
+        }
+        StringBuilder groupsString = new StringBuilder();
+        for (RosterGroup group : groups) {
+            if (groupsString.length() > 0) {
+                groupsString.append(", ");
+            }
+            groupsString.append(group.getName());
+        }
+        return groupsString.toString();
+    }
 }
 

@@ -117,8 +117,18 @@
     background-color: green;
 }
 
+.status-color-circle.absent {
+    background-color: orange;
+}
+
 .status-color-circle.inactive {
     background-color: red;
+}
+
+.status-color-circle.busy {
+    background-color: rgb(67, 0, 0);
+    text-align: center;
+    color: white;
 }
 
 .bx-chevron-down {
