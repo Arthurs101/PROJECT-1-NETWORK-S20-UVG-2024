@@ -30,3 +30,40 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+//make them send the status
+document.querySelectorAll('.dropdown-option').forEach(option => {
+    option.addEventListener('click', function () {
+        // Get the selected status and message
+        const status = this.getAttribute('data-value');
+        const indicator  =  this.getAttribute('data-class');
+        const msg  =  this.getAttribute('data-message');
+        // Update the displayed status
+        document.getElementById('selected-status-text').textContent = msg;
+        document.getElementById('active-status-color').className = indicator;
+
+        // Make a POST request to update the status on the server
+        fetch('/set-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: status, message: msg }),
+        })
+        .then(response => response.json())  // Parse JSON response
+        .then(data => {
+            if (data.success === "true") {
+                Swal.fire({
+                    icon: "success",
+                    title: "Status changed",
+                })
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: data.message
+                })
+            }
+        })
+        .catch((error) => console.error('Error:', error));
+    }) });

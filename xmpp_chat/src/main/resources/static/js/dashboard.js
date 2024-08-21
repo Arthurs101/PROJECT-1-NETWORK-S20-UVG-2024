@@ -37,7 +37,12 @@ document.getElementById("send-button").addEventListener("click", function() {
         renderMessage(message,false);
     })
     .catch(error => {
-        console.error("Error sending message: ", error);
+        Swal.fire({
+            title: 'Error! Message could not be sent',
+            text:error,
+            icon: 'error',
+            confirmButtonText: 'Okay'
+          })
     });
 });
 
@@ -126,6 +131,10 @@ function showChat(username) {
         Settingsredered = false;
     }
     console.log("showing chat")
+
+    var chatHeader = document.querySelector('.chat-header p');
+    chatHeader.textContent = username;
+
     var chatWrapper = document.querySelector('.chat-wrapper');
     chatWrapper.innerHTML = '';
     console.log(currentHistorical);
@@ -134,8 +143,6 @@ function showChat(username) {
             renderMessage(message.message, message.received); 
         });
     }
-    var chatHeader = document.querySelector('.chat-header p');
-    chatHeader.textContent = username;
     // Handle the "active" class
     var chatItems = document.querySelectorAll('.chat-item-container');
     chatItems.forEach(function(item) {

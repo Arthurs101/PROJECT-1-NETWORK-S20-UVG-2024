@@ -140,6 +140,13 @@ color: #999;
     height: 85vh;
     width: 80vw;
     background-color:white;
+    display: flex; 
+    flex-direction: column; 
+    max-height: 80vw;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    padding-left: 5vw;
+    padding-right: 5vw;
 }
 .chat-header {
     background-color: var(--dark-royal-blue);
@@ -162,9 +169,22 @@ color: #999;
 }
 .sent-message{
     background-color: var(--blue-gray);
+    border-radius: 5px;
+    width: fit-content;
+    padding: 5px;
+    max-width: 40vw;
+    overflow-x: break-word;
+    align-self: flex-end;
 }
 .received-message{
-    background-color: var(--dark-royal-blue)
+    background-color: var(--dark-royal-blue);
+    border-radius: 5px;
+    width: fit-content;
+    padding: 5px;
+    max-width: 40vw;
+    overflow-x: break-word;
+    align-self: flex-start;
+    color: white;
 }
 .chats > ul{
     list-style-type: none;

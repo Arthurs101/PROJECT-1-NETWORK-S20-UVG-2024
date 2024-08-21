@@ -101,3 +101,28 @@ document.getElementById("add-contact").addEventListener('click', async function(
         });
 } );
 
+document.getElementById("new-chat").addEventListener('click', async function() { 
+    const { value: username } = await Swal.fire({
+        title: "Iniciar chat con:",
+        input: "text",
+        inputLabel: "Username",
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to write something!";
+          }
+        }
+      });
+    //show the chat :D
+    if(username) {
+    var chatList = document.getElementById('current-chat-list');
+    var existingUserLink = document.getElementById(`${username}@alumchat.lol`);
+    if (!existingUserLink){    
+        var li = createUsernameListElement(username+'@alumchat.lol');
+        chatList.appendChild(li);
+    }
+    showChat(username+'@alumchat.lol');
+    }else{
+        Swal.fire('error','type a username ._.','error')
+    }
+} );

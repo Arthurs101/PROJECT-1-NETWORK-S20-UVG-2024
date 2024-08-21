@@ -32,13 +32,13 @@
             </div>
             <div class="options-container">
                 <div class="option" id="grupal-chat-container">
-                    <i class='bx bx-group'></i>
+                    <i class='bx bx-group' id="new-group-chat"></i>
                     <p>
                         nuevo grupo
                     </p>
                 </div>
                 <div class="option" id="new-chat">
-                    <i class='bx bxs-message-add'></i>
+                    <i class='bx bxs-message-add' id="new-chat-with-user"></i>
                     <p>
                         nuevo chat
                     </p>
@@ -91,7 +91,6 @@
                 </div>
                 <div class="chat-wrapper">
                     <!-- the messages of the current chat -->
-                    <p></p>
                 </div>
                 <div class="chat-input">
                     <i class='bx bx-paperclip' id="attach-file-button"></i>
@@ -100,33 +99,34 @@
                 </div>            
             </div>
             <div class="nav-page inactive" id="user-settings">
+                <button id="delete-account-button" type="button">Delete my account</button>
                 <div class="custom-dropdown">
                     <div class="dropdown-selected">
-                        <div class="status-color-circle active"></div>
-                        <p>Disponible</p>
+                        <div class="status-color-circle active" id="active-status-color"></div>
+                        <pid id="selected-status-text">Disponible</p>
                         <i class='bx bx-chevron-down'></i>
                     </div>
                     <div class="dropdown-options">
-                        <div class="dropdown-option">
+                        <div class="dropdown-option" data-value="available"  data-class="status-color-circle active" data-message="Disponible">
                             <div class="status-color-circle active"></div>
                             <p>Disponible</p>
                         </div>
-                        <div class="dropdown-option" data-value="disponible">
+                        <div class="dropdown-option" data-value="away" data-class="status-color-circle absent" data-message="Ausente">
                             <div class="status-color-circle absent"></div>
                             <p>Ausente</p>
                         </div>
-                        <div class="dropdown-option" data-value="no disponible">
+                        <div class="dropdown-option" data-value="dnd" data-class="status-color-circle inactive" data-message="No Disponible">
                             <div class="status-color-circle inactive"></div>
                             <p>No Disponible</p>
                         </div>
-                        <div class="dropdown-option" data-value="ocupado">
+                        <div class="dropdown-option" data-value="xa" data-class="status-color-circle busy" data-message="Ocupado">
                             <div class="status-color-circle busy">-</div>
                             <p>Ocupado</p>
                         </div>
                     </div>
                 </div>
                 <input type="hidden" name="status-dropdown" id="status-dropdown" value="disponible">
-                
+                <input type="text" name="status-message" id="status-message" placeholder="Mensaje de estado">
             </div>
             
     </div>

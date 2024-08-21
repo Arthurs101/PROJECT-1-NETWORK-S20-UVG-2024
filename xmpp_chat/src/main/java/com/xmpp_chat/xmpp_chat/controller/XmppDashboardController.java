@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,8 +35,10 @@ public class XmppDashboardController {
 
     @GetMapping("/dashboard")
     public String getDashboard(Model model) {
+        xmppClient.updateStatus("available", "");
         //render the dashboard and set a listener for any incoming messages
         ChatManager chatManager = xmppClient.getChatManagerListener();
+        if (chatManager != null) {
         chatManager.addIncomingListener((from, message, chat) -> {
             this.activeChatsMap.computeIfAbsent(from.toString(), k -> new ArrayList<>()).add(message.getBody());
             // Convert the XMPP message to a DTO and send it via WebSocket
@@ -43,7 +47,12 @@ public class XmppDashboardController {
         });
         model.addAttribute("activeChats", new ArrayList<String>(this.activeChatsMap.keySet()));
         model.addAttribute("nickname", xmppClient.getUsername());
-        return "dashboard";
+        
+        
+        return "dashboard";}
+        else{
+            return "redirect:/login";
+        }
     }
     @PostMapping("/logout")
     public String logout() {
@@ -52,8 +61,6 @@ public class XmppDashboardController {
         return "redirect:/login";
     }
     
-
-
     @PostMapping("/message")
     @ResponseBody
     public String postMessage(@RequestBody Map<String, String> payload) {
@@ -67,6 +74,30 @@ public class XmppDashboardController {
     return "Message received: " + message;
    }
     
+    @PostMapping("/delete")
+    @ResponseBody
+    public String postMethodName(@RequestBody String entity) {
+        //TODO: process POST request
+        
+        return entity;
+    }
+    
+    @PostMapping("/set-status")
+    @ResponseBody
+    public Map<String, String> setStatus(@RequestBody Map<String, String> payload) {
+        String status = payload.get("status");
+        String message = payload.get("message");
+        try {
+            return xmppClient.updateStatus(status, message);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("success", "false");
+            response.put("message", e.getMessage());
+            System.err.println(e.getMessage());
+            return response;
+        }
+    }
+
     @PostMapping("/add-contact")
     @ResponseBody
     public String addContact(@RequestBody Map<String, String> payload) {

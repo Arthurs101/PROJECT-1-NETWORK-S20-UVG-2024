@@ -10,19 +10,24 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.PresenceBuilder;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 @Service
 public class XmppClient {
     private XmppClient singleton = null;
@@ -90,33 +95,83 @@ public class XmppClient {
         return false;
     }
 
-    public boolean DeleteAccount() {
+    public String[]  DeleteAccount() {
         if(this.accountManager == null){
-            return false;
+            String[] msg= {"false","no account session"};
+            return msg;
         }else{
             try {
                 this.accountManager.deleteAccount();
+                String[] msg= {"true","success on deletion"};
+                return msg;
             }catch (Exception e){
-                return false;
+                String[] msg= {"false",e.getMessage()};
+                return msg;
             }
         }
-        return false;
-
     }
      
-    public  void agregarContacto(String jidStr) {
+    public Map<String, String> updateStatus(String status, String message) {
+        Presence presence;
+        Map<String, String> response = new HashMap<>();
+        try {
+            presence = switch (status) {
+                case "available" -> PresenceBuilder.buildPresence()
+                        .ofType(Presence.Type.available)
+                        .setMode(Mode.available)
+                        .setStatus(message)
+                        .build();
+                case "away" -> PresenceBuilder.buildPresence()
+                        .ofType(Presence.Type.available)
+                        .setMode(Mode.away)
+                        .setStatus(message)
+                        .build();
+                case "dnd" -> PresenceBuilder.buildPresence()
+                        .ofType(Presence.Type.available)
+                        .setMode(Mode.dnd)
+                        .setStatus(message)
+                        .build();
+                case "xa" -> PresenceBuilder.buildPresence()
+                        .ofType(Presence.Type.available)
+                        .setMode(Mode.xa)
+                        .setStatus(message)
+                        .build();
+                default -> PresenceBuilder.buildPresence()
+                        .ofType(Presence.Type.available)
+                        .setMode(Mode.available)
+                        .setStatus(message)
+                        .build();
+            };
+
+            connection.sendStanza(presence);
+            response.put("success", "true");
+            response.put("message", "Status changed");
+        } catch (Exception e) {
+            response.put("success", "false");
+            response.put("message", e.getMessage());
+            System.err.println(e.getMessage());
+        }
+
+        return response;
+
+    }
+
+    public  String[] agregarContacto(String jidStr) {
         if (this.connection != null && this.connection.isAuthenticated()) {
             try {
                 EntityBareJid jid = JidCreate.entityBareFrom(jidStr);
                 Roster roster = Roster.getInstanceFor(connection);
                 roster.createEntry(jid, jidStr, null);
-                System.out.println("Contacto agregado exitosamente.");
+                System.out.println("");
+                String[] msg= {"true","Solicitud enviada exitosamente"};
+                return msg;
             } catch (Exception e) {
-                System.out.println("Error al agregar contacto: " + e.getMessage());
-                e.printStackTrace();
+                String[] msg= {"false",e.getMessage()};
+                return msg;
             }
         } else {
-            System.out.println("No has iniciado sesión.");
+            String[] msg= {"false","no account isntance"};
+            return msg;
         }
     }
 
@@ -130,11 +185,15 @@ public class XmppClient {
             System.out.println("No auth session available");
         }
     }
-
+    
     public ChatManager getChatManagerListener() {
+        if (this.connection != null) {
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
 
         return chatManager;
+        } else {
+            return null;
+        }
     }
 
     public String getUsername() {
@@ -180,5 +239,52 @@ public class XmppClient {
         }
         return groupsString.toString();
     }
+
+    public void createGroup(String roomName, String nickname) throws Exception {
+        MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
+        EntityBareJid roomJid = JidCreate.entityBareFrom(roomName + "@conference." + connection.getXMPPServiceDomain());
+        MultiUserChat muc = mucManager.getMultiUserChat(roomJid);
+        // Create the room and configure it if not already exists
+        muc.create(Resourcepart.from(nickname));
+        // MucCreateConfigFormHandle handle = muc.;
+    }
+
+    public void joinGroup(String roomName, String nickname) throws Exception {
+         MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
+        EntityBareJid roomJid = JidCreate.entityBareFrom(roomName + "@conference." + connection.getXMPPServiceDomain());
+        MultiUserChat muc = mucManager.getMultiUserChat(roomJid);
+        
+        // Join the group (room)
+        muc.join(Resourcepart.from(nickname));
+    }
+
+    // public List<String> getGroups() throws Exception {
+    //     MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
+    //     List<String> rooms = new ArrayList<>();
+        
+    //     // Discover all rooms
+    //     DiscoverItems items = mucManager.getHostedRooms(connection.getXMPPServiceDomain());
+    //     for (DiscoverItems.Item item : items.getItems()) {
+    //         rooms.add(item.getEntityID().toString());
+    //     }
+        
+    //     return rooms;
+    // }
+
+    public List<String> getOnlineUsers() {
+        Roster roster = Roster.getInstanceFor(connection);
+    List<String> onlineUsers = new ArrayList<>();
+
+    for (RosterEntry entry : roster.getEntries()) {
+        Presence presence = roster.getPresence(entry.getJid());
+        if (presence.isAvailable()) {
+            onlineUsers.add(entry.getJid().toString());
+        }
+    }
+    
+        return onlineUsers;
+    }
+
+    
 }
 
