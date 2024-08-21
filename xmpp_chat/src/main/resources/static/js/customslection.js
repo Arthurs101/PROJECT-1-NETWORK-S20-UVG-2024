@@ -16,8 +16,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const colorClass = option.querySelector('.status-color-circle').className.split(' ')[1];
 
             hiddenInput.value = value;
-            selected.querySelector('p').textContent = text;
-            selected.querySelector('.status-color-circle').className = `status-color-circle ${colorClass}`;
+            // selected.querySelector('p').textContent = text || "";
+            // selected.querySelector('.status-color-circle').className = `status-color-circle ${colorClass}`;
             
             optionsContainer.style.display = 'none';
         });

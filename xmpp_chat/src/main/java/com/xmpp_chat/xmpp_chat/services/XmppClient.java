@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -31,6 +32,8 @@ import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.xmpp_chat.xmpp_chat.Models.RoomDTO;
 @Service
 public class XmppClient {
     private XmppClient singleton = null;
@@ -239,6 +242,18 @@ public class XmppClient {
         return groupsString.toString();
     }
 
+    public  List<RoomDTO> getJoinedGroups() {
+         MultiUserChatManager multiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
+        List<EntityBareJid> joinedRooms = new ArrayList<>(multiUserChatManager.getJoinedRooms());
+
+        List<RoomDTO> roomDtos = new ArrayList<>();
+        for (EntityBareJid bareJid : joinedRooms) {
+            roomDtos.add(new RoomDTO(bareJid.toString()));
+        }
+
+        return roomDtos;
+    }
+
     public void createGroup(String roomName, String nickname) throws Exception {
         MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
         EntityBareJid roomJid = JidCreate.entityBareFrom(roomName + "@conference." + connection.getXMPPServiceDomain());
@@ -249,11 +264,10 @@ public class XmppClient {
         joinGroup(roomName, nickname);
     }
 
-    public void joinGroup(String roomName, String nickname) throws Exception {
-         MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
-        EntityBareJid roomJid = JidCreate.entityBareFrom(roomName + "@conference." + connection.getXMPPServiceDomain());
+    public void joinGroup(String JID, String nickname) throws Exception {
+        MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
+        EntityBareJid roomJid = JidCreate.entityBareFrom(JID);
         MultiUserChat muc = mucManager.getMultiUserChat(roomJid);
-        
         // Join the group (room)
         muc.join(Resourcepart.from(nickname));
     }

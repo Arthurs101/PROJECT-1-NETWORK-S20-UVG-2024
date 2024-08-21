@@ -135,3 +135,8 @@
     font-size: 20px;
     margin-left: 10px;
 }
+
+#rooms-list{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}

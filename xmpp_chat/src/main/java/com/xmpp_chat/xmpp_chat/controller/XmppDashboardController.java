@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Message;
+import org.jxmpp.jid.EntityBareJid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xmpp_chat.xmpp_chat.Models.ChatMessageDTO;
+import com.xmpp_chat.xmpp_chat.Models.RoomDTO;
 import com.xmpp_chat.xmpp_chat.services.XmppClient;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -117,8 +121,35 @@ public class XmppDashboardController {
     public List<Map<String, String>> getRooms() {
         return xmppClient.retrieveChatRooms();
     }
+
+    @PostMapping("/rooms")
+    @ResponseBody
+    public Map<String, String> newRoom(@RequestBody HashMap<String, String> roomMap) { //creating a new room
+        try{
+            xmppClient.createGroup(roomMap.get("roomName"),roomMap.get("nickname"));
+            return new HashMap<String, String>() {{put("succes","true");}};
+        }catch(Exception e){
+            return new HashMap<String, String>() {{put("succes","false");put("message",e.getMessage());}};
+        }
+    }
+    @GetMapping("/rooms/mine")
+    @ResponseBody
+    public List<RoomDTO> getMethodName() {
+        return xmppClient.getJoinedGroups();
+    }
     
-    
+    @PostMapping("/rooms/join")
+    @ResponseBody
+    public Map<String, String> joinRoom(@RequestBody HashMap<String,String> room){
+        try{
+            System.out.println(room.get("JID"));
+            System.out.println(room.get("Name"));
+            xmppClient.joinGroup(room.get("JID"),room.get("Name"));
+            return new HashMap<String, String>() {{put("succes","true");}};
+        } catch(Exception e){
+            return new HashMap<String, String>() {{put("succes","false");put("message",e.getMessage());}};
+        }
+    }
     @GetMapping("/chat/{username}")
     @ResponseBody
     public List<String> getChatMessages(@PathVariable("username") String username) {
