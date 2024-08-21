@@ -1,4 +1,21 @@
 Settingsredered = false;
+
+document.getElementById("grupal-chat-container").addEventListener("click", function() {
+    console.log("retrieving groups...");
+    fetch('/rooms', {
+        method: 'GET'
+        }).then(response => response.json())
+        .then(body => console.log(body));
+});
+
+document.getElementById("view-users").addEventListener("click",function(){
+    console.log("retrieving users...");
+    fetch('/users', {
+        method: 'GET'
+        }).then(response => response.json())
+        .then(body => console.log(body));
+})
+
 document.getElementById("profile-details-option").addEventListener('click',function(){
     if(!Settingsredered){
     //hide the chats from the navbar

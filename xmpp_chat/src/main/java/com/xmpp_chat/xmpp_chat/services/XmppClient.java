@@ -18,9 +18,12 @@ import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
@@ -31,10 +34,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class XmppClient {
     private XmppClient singleton = null;
-    public XmppClient getSingleton() { 
-        if (singleton == null) {
-            singleton = new XmppClient();
-    }return singleton; }
     private XMPPTCPConnection connection;
     private AccountManager accountManager;
     private String currUsername;
@@ -247,6 +246,7 @@ public class XmppClient {
         // Create the room and configure it if not already exists
         muc.create(Resourcepart.from(nickname));
         // MucCreateConfigFormHandle handle = muc.;
+        joinGroup(roomName, nickname);
     }
 
     public void joinGroup(String roomName, String nickname) throws Exception {
@@ -258,32 +258,46 @@ public class XmppClient {
         muc.join(Resourcepart.from(nickname));
     }
 
+    public List<Map<String, String>> retrieveChatRooms() {
+        try {
+            List<Map<String, String>> allChatRooms = new ArrayList<>();
+            // Create a ServiceDiscoveryManager
+            ServiceDiscoveryManager discoManager = ServiceDiscoveryManager.getInstanceFor(connection);
+
+            // Specify the conference domain
+            DomainBareJid serviceName = JidCreate.domainBareFrom("conference.alumchat.lol");
+
+            // Discover the items (chat rooms) on the server
+            DiscoverItems discoverItems = discoManager.discoverItems(serviceName);
+
+            for (DiscoverItems.Item item : discoverItems.getItems()) {
+                Map<String, String> entry = new HashMap<String, String>();
+                entry.put("JID" , item.getEntityID().toString());
+                entry.put("Name" , item.getName());
+                allChatRooms.add(entry);
+            }
+            return allChatRooms;
+        } catch (Exception e) {
+            Map<String, String> err = new HashMap<String, String>();
+            err.put("error", e.getMessage());
+            List<Map<String, String>> allChatRooms = new ArrayList<>();
+            allChatRooms.add(err);
+            return allChatRooms;
+        }
+    }
+
     // public List<String> getGroups() throws Exception {
     //     MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
     //     List<String> rooms = new ArrayList<>();
         
     //     // Discover all rooms
-    //     DiscoverItems items = mucManager.getHostedRooms(connection.getXMPPServiceDomain());
-    //     for (DiscoverItems.Item item : items.getItems()) {
+    //     Set<EntityBareJid> items = mucManager.getJoinedRooms();
+    //     for (DiscoverItems.Item item : items.console) {
     //         rooms.add(item.getEntityID().toString());
     //     }
         
     //     return rooms;
     // }
-
-    public List<String> getOnlineUsers() {
-        Roster roster = Roster.getInstanceFor(connection);
-    List<String> onlineUsers = new ArrayList<>();
-
-    for (RosterEntry entry : roster.getEntries()) {
-        Presence presence = roster.getPresence(entry.getJid());
-        if (presence.isAvailable()) {
-            onlineUsers.add(entry.getJid().toString());
-        }
-    }
-    
-        return onlineUsers;
-    }
 
     
 }

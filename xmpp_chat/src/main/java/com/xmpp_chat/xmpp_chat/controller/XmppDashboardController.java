@@ -30,9 +30,8 @@ public class XmppDashboardController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
     private Map<String, List<String>> activeChatsMap = new HashMap<>(); // Stores active chats
-
+    
     @GetMapping("/dashboard")
     public String getDashboard(Model model) {
         xmppClient.updateStatus("available", "");
@@ -46,9 +45,7 @@ public class XmppDashboardController {
             messagingTemplate.convertAndSendToUser(xmppClient.getUsername(), "/queue/messages", chatMessageDTO);
         });
         model.addAttribute("activeChats", new ArrayList<String>(this.activeChatsMap.keySet()));
-        model.addAttribute("nickname", xmppClient.getUsername());
-        
-        
+        model.addAttribute("nickname", xmppClient.getUsername());       
         return "dashboard";}
         else{
             return "redirect:/login";
@@ -76,10 +73,8 @@ public class XmppDashboardController {
     
     @PostMapping("/delete")
     @ResponseBody
-    public String postMethodName(@RequestBody String entity) {
-        //TODO: process POST request
-        
-        return entity;
+    public String[] postMethodName(@RequestBody String entity) {
+        return xmppClient.DeleteAccount();
     }
     
     @PostMapping("/set-status")
@@ -116,6 +111,14 @@ public class XmppDashboardController {
         catch(Exception e){return new ArrayList<Map<String, String>>();}
         
     }
+
+    @GetMapping("/rooms")
+    @ResponseBody
+    public List<Map<String, String>> getRooms() {
+        return xmppClient.retrieveChatRooms();
+    }
+    
+    
     @GetMapping("/chat/{username}")
     @ResponseBody
     public List<String> getChatMessages(@PathVariable("username") String username) {
