@@ -41,7 +41,8 @@ document.querySelectorAll('.dropdown-option').forEach(option => {
         // Update the displayed status
         document.getElementById('selected-status-text').textContent = msg;
         document.getElementById('active-status-color').className = indicator;
-
+        document.getElementById('status').textContent = msg;
+        document.getElementById('status-circle').className = indicator;
         // Make a POST request to update the status on the server
         fetch('/set-status', {
             method: 'POST',
@@ -52,6 +53,7 @@ document.querySelectorAll('.dropdown-option').forEach(option => {
         })
         .then(response => response.json())  // Parse JSON response
         .then(data => {
+            console.log(data);
             if (data.success === "true") {
                 Swal.fire({
                     icon: "success",

@@ -62,6 +62,9 @@ public class XmppClient {
         connection.connect();
         connection.login();
         this.currUsername = username;
+        if (connection.isConnected()){
+            this.accountManager = AccountManager.getInstance(connection);
+        }
         return connection.isConnected();
     }
 
@@ -97,18 +100,17 @@ public class XmppClient {
         return false;
     }
 
-    public String[]  DeleteAccount() {
-        if(this.accountManager == null){
-            String[] msg= {"false","no account session"};
-            return msg;
+    public Map<String, String> DeleteAccount() {
+        if(!this.connection.isConnected()){
+           return new HashMap<String, String>(){{put("succes","false"); put("message","not even sig in");}};
         }else{
             try {
-                this.accountManager.deleteAccount();
-                String[] msg= {"true","success on deletion"};
-                return msg;
+                accountManager = AccountManager.getInstance(connection);
+                connection = null;
+                accountManager.deleteAccount();
+                return new HashMap<String, String>(){{put("succes","true"); put("message","deleted account");}};
             }catch (Exception e){
-                String[] msg= {"false",e.getMessage()};
-                return msg;
+                return new HashMap<String, String>(){{put("succes","true"); put("message",e.getMessage());}};
             }
         }
     }
@@ -189,7 +191,7 @@ public class XmppClient {
     }
     
     public ChatManager getChatManagerListener() {
-        if (this.connection != null) {
+        if (this.connection.isConnected()) {
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
 
         return chatManager;

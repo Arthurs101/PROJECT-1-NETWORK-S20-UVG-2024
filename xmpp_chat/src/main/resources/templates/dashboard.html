@@ -20,7 +20,10 @@
             <div class="profile-details">
                 <div class="flex-divider" id="profile-details-option">
                     <p class="profile-name id" id="profile-name" th:text="${nickname}"></p>
-                    <p class="simple-text" id="status"> SAMPLE STATUS</p>
+                    <div class="status-info" style="display: flex; align-items: center; justify-content: flex-start;">
+                        <div id ="status-circle" class="status-color-circle active"></div>
+                        <p class="simple-text" id="status">Disponible</p>
+                    </div>
                 </div>
                 <form th:action="@{/logout}" method="post" id="logout-form">
                     <div class="logout-container">

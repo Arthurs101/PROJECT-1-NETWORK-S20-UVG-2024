@@ -91,10 +91,15 @@ public class XmppDashboardController {
    }
    
 
-   @PostMapping("/delete")
+    @PostMapping("/delete")
     @ResponseBody
-    public String[] postMethodName(@RequestBody String entity) {
-        return xmppClient.DeleteAccount();
+    public Map<String, String> postMethodName() {
+        Map<String, String> response = xmppClient.DeleteAccount();
+        // Check if the operation was successful
+        if ("true".equals(response.get("succes"))) {
+            response.put("redirect", "/login");
+        }
+        return response;
     }
     
     @PostMapping("/set-status")

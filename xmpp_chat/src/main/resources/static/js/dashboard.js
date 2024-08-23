@@ -15,7 +15,46 @@ document.getElementById("logout-icon").addEventListener('click',function(){
     
 })
 
+document.getElementById("delete-account-button").addEventListener('click',function (){
+    Swal.fire({
+        title: 'Delete Account',
+        showDenyButton: true,
+        text: 'Deleting the account is permanent, proceed?',
+        confirmButtonText: "Delete Account",
+        confirmButtonColor: "#eb4034",
+        denyButtonColor: "#454747",
 
+        
+    }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            fetch('/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})  // or any necessary data to send
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data["succes"] === "true") {
+                    // Redirect to the login page if the deletion was successful
+                    if (data["redirect"]) {
+                        Swal.fire('Success', data.message, 'success');
+                        window.location.href = data["redirect"];
+                    } 
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'An error occurred while processing the request.', 'error');
+            });
+        } 
+      });
+})
 
 //handle the submision of the messages
 document.getElementById("send-button").addEventListener("click", function() {
