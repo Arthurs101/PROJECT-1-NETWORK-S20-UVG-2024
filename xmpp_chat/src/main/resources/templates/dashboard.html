@@ -71,7 +71,7 @@
                 <ul id="current-chat-list">
                     <!-- render all the retrieved chats -->
                     <li th:each="chat : ${activeChats}" class="chat-item-container"
-                    th:attr="onclick=|showChat('${chat}')|,id=${chat}"
+                    th:attr="onclick=|showChat('${chat}')|,data-user=${chat}"
                     th:classappend="${chat.substring(0, chat.indexOf('@')) == currentChatUsername ? ' active' : ''}">
                         <span  class="chat-initial">
                             <p th:text="${#strings.capitalize(#strings.substring(chat, 0, 1))}"></p>

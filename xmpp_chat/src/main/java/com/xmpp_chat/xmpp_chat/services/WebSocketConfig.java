@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/user", "/room"); //enable for both sockets
+        config.enableSimpleBroker("/user"); //enable for both sockets
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/user");
     }
@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").withSockJS(); //1 to 1
-        registry.addEndpoint("/room-ws").withSockJS(); // the chatrooms
+        registry.addEndpoint("/ws/group").withSockJS(); // group messages
     }
 }

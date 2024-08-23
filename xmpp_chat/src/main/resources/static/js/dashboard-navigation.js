@@ -2,23 +2,25 @@ Settingsredered = false;
 FoundGroups = [];
 Mygroups = [];
 listMode = 1;
-function search(nameKey, myArray){
+function search(JID, myArray){
     for (let i=0; i < myArray.length; i++) {
-        if (myArray[i].name === nameKey) {
-            return myArray[i];
+        if (myArray[i]['JID'] == JID) {
+            return myArray[i]['Name'];
         }
     }
+    return ""
 }
-function fetchGroups(){
+async function  fetchGroups(){
     
-    fetch('/rooms', {
+    await fetch('/rooms', {
         method: 'GET'
         }).then(response => response.json())
         .then(body => {
             FoundGroups = body || [];
         }
         );
-    fetch('/rooms/mine', {
+
+    await fetch('/rooms/mine', {
         method: 'GET'
         }).then(response => response.json())
         .then(body => {
@@ -26,10 +28,8 @@ function fetchGroups(){
         }
         );
         Mygroups.forEach(group => {
-            let obj = search(group.roomJID,FoundGroups);
-           group['Name'] = obj.Name;
+           group['Name'] = search(group['roomJid'],FoundGroups);;
         })
-        console.log(FoundGroups);
 }   
 
 function createGroupElement(groupName,join,JID){
@@ -71,7 +71,6 @@ function createGroupElement(groupName,join,JID){
 }
 
 function joinGroup(groupJid){
-    console.log("Join Group")
     fetch('/rooms/join',{
      method: 'POST',
      headers: {
@@ -96,9 +95,8 @@ document.getElementById("join-room").addEventListener("click", function() {
     groupList.innerHTML = "";
     switch (listMode) {
         case 0:
-            console.log(Mygroups)
             Mygroups.forEach( (k) => {
-                groupList.appendChild(createGroupElement(k['Name'],false,k['roomJID']));
+                groupList.appendChild(createGroupElement(k['Name'],false,k['roomJid']));
             } );
             listMode = 1;
             this.innerHTML = "Join a group";
@@ -110,10 +108,7 @@ document.getElementById("join-room").addEventListener("click", function() {
             listMode = 0;
             this.innerHTML = "Bact to my groups";
             break;
-    }
-    
-    
-    
+    }   
 });
 
 document.getElementById("grupal-chat-container").addEventListener("click", function() {
@@ -133,7 +128,6 @@ document.getElementById("grupal-chat-container").addEventListener("click", funct
 });
 
 document.getElementById("view-users").addEventListener("click",function(){
-    console.log("retrieving users...");
     fetch('/users', {
         method: 'GET'
         }).then(response => response.json())
@@ -238,7 +232,6 @@ document.getElementById("add-contact").addEventListener('click', async function(
         })
         .then(response => response.text())
         .then(data => {
-            console.log(data)
         })
         .catch(error => {
             console.error("Error sending message: ", error);

@@ -2,8 +2,11 @@
 // Handling of a WebSocket connection
 const nickname = document.querySelector('#profile-name').textContent.trim();
 const socket = new SockJS('/ws');
+const socketg = new SockJS('/ws/group');
 const stompClient = Stomp.over(socket);
+const stompClientGroups = Stomp.over(socketg);
 var currentHistorical = {};
+var currentHistoricalGroups = {};
 let isConnected = false;
 //ad an action to logout
 document.getElementById("logout-icon").addEventListener('click',function(){
@@ -25,16 +28,27 @@ document.getElementById("send-button").addEventListener("click", function() {
         },
         body: JSON.stringify({ message: message, destination: destination })
     })
-    .then(response => response.text())
+    .then(response => response.json())
     .then(data => {
+        console.log(data);
         document.getElementById("message").value = "";  // Clear the input field
+        console.log("Success value:", data["succes"]);
+        if (data["succes"] === "true" || data["success"] === true)   {
+                // Ensure the destination key exists, then push the message
+            if (search(destination, FoundGroups) != ""){
+                currentHistoricalGroups[destination] = currentHistoricalGroups[destination] || [];
+                currentHistoricalGroups[destination].push({body :message, from : destination});
+            }else{
+                currentHistorical[destination] = currentHistorical[destination] || [];
+                currentHistorical[destination].push({ message: message, received: false });
+                //render the message
+                renderMessage(message,false);
+            }   
+        }else{
+            Swal.fire('error',data.message,'error');
+        }
         
-        // Ensure the destination key exists, then push the message
-        currentHistorical[destination] = currentHistorical[destination] || [];
-        currentHistorical[destination].push({ message: message, received: false });
-
-        //render the message
-        renderMessage(message,false);
+        
     })
     .catch(error => {
         Swal.fire({
@@ -44,17 +58,25 @@ document.getElementById("send-button").addEventListener("click", function() {
             confirmButtonText: 'Okay'
           })
     });
+    
 });
 
 
 if (nickname) {
     if(!isConnected) {
-    stompClient.connect({}, onConnected, onError);}
+    stompClient.connect({}, onConnected, onError);
+    stompClientGroups.connect({}, onConnectedGroups, onError);
+}
 }
 
 function onConnected() {
     isConnected = true
     stompClient.subscribe(`/user/${nickname}/queue/messages`, onMessageReceived);
+    
+}
+function onConnectedGroups(){
+    isConnected = true
+    stompClientGroups.subscribe(`/user/${nickname}/queue/group-messages`, onGrupalMessageReceived);
 }
 
 function onError() {
@@ -69,10 +91,34 @@ function renderMessage(message, received) {
     p.className = received ? 'received-message' : 'sent-message';
     chatWrapper.appendChild(p);
 }
+function renderMessageGrupal(sender,body){
+    var chatWrapper = document.querySelector('.chat-wrapper');
+    var div = document.createElement('div');
+    var msg = document.createElement('p');
+    var from = document.createElement('p');
+    msg.textContent=body;
+    msg.style.margin = 0;
+    from.textContent=sender;
+    msg.style.margin = 0
+    div.style.marginBottom = "10px";
+    document.getElementById('profile-name').textContent
+    if (document.getElementById('profile-name').textContent == sender){
+        div.className = 'sent-message';
+    }else{
+        div.className = 'received-message';
+    }
+    div.appendChild(msg);
+    div.appendChild(from);
+    div.style.display = 'flex';
+    div.style.flexDirection = 'column';
+    div.style.alignItems = 'flex-start';
+    div.style.justifyContent = 'center';
+    chatWrapper.appendChild(div);
+}
 function createUsernameListElement(chat){
     const li = document.createElement('li');
     li.classList.add('chat-item-container');
-    li.id = chat;
+    li.setAttribute('data-user',chat);
     li.setAttribute('onclick', `showChat('${chat}')`);
 
     // Determine the active class based on the chat username
@@ -95,22 +141,32 @@ function createUsernameListElement(chat){
     li.appendChild(chatUsernameAnchor);
     return li;
 }
-function onMessageReceived(payload){
-    console.log("Received a message");
+function onGrupalMessageReceived(payload) {
     const message = JSON.parse(payload.body);
-   
+    var chatHeader = document.querySelector('#current-chat-username');
+    if (chatHeader.textContent === message.roomJid){
+        renderMessageGrupal(message.body, message.from);
+    }
+    currentHistoricalGroups[message.roomJid] = currentHistoricalGroups[message.roomJid] || []; //
+    currentHistoricalGroups[message.roomJid].push({body :message.body, from : message.from});
+}
+function onMessageReceived(payload){
+    
+    const message = JSON.parse(payload.body);
+    console.log("Received message")
+    console.log(message)
     var chatHeader = document.querySelector('#current-chat-username');
     // Check if the user is already in the sidebar; if not, add them
     var chatList = document.getElementById('current-chat-list');
-    var existingUserLink = document.getElementById(`${message.from}`);
-    console.log(existingUserLink)
+    var existingUserLink = document.querySelector(`#current-chat-list li[data-user="${message.from}"]`);
+    
+    console.log(existingUserLink);
     if (!existingUserLink) {
         var li = createUsernameListElement(message.from);
         chatList.appendChild(li);
     }
 
     if (chatHeader.textContent === message.from) {
-        console.log("Rendering a message");
         // Append the message to the chat wrapper
         renderMessage(message.body, true);
     }    // Save the message otherwise it will be lost
@@ -128,31 +184,36 @@ function showChat(username) {
         userSettings.classList.add('inactive')
         messagesDisplay.classList.remove('inactive')
         messagesDisplay.classList.add('active')
+        document.getElementById('rooms').classList.remove("active");
+        document.getElementById('rooms').classList.add("inactive");
         Settingsredered = false;
     }
-    console.log("showing chat")
 
     var chatHeader = document.querySelector('.chat-header p');
     chatHeader.textContent = username;
 
     var chatWrapper = document.querySelector('.chat-wrapper');
     chatWrapper.innerHTML = '';
-    console.log(currentHistorical);
     if (currentHistorical[username]) {
         currentHistorical[username].forEach((message) => {
             renderMessage(message.message, message.received); 
         });
+            // Handle the "active" class
+        var chatItems = document.querySelectorAll('.chat-item-container');
+        chatItems.forEach(function(item) {
+            item.classList.remove('active');
+            // Get the username from the chat item
+            var chatUsername = item.querySelector('.chat-username-ref').textContent;
+            if (chatUsername + "@alumchat.lol" === username) {
+                item.classList.add('active');
+            }
+        });
+    } 
+    if (currentHistoricalGroups[username]) {
+        currentHistoricalGroups[username].forEach((message) => {
+            renderMessageGrupal(message.body, message.from); 
+        });
     }
-    // Handle the "active" class
-    var chatItems = document.querySelectorAll('.chat-item-container');
-    chatItems.forEach(function(item) {
-        item.classList.remove('active');
-        // Get the username from the chat item
-        var chatUsername = item.querySelector('.chat-username-ref').textContent;
-        console.log(chatUsername)
-        if (chatUsername + "@alumchat.lol" === username) {
-            item.classList.add('active');
-        }
-    });
+
 }
 

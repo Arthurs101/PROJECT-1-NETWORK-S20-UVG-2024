@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jxmpp.jid.EntityBareJid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,8 @@ import com.xmpp_chat.xmpp_chat.services.XmppClient;
 
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.xmpp_chat.xmpp_chat.Models.RoomMessageDTO;
+
 
 @Controller
 public class XmppDashboardController {
@@ -35,7 +39,7 @@ public class XmppDashboardController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
     private Map<String, List<String>> activeChatsMap = new HashMap<>(); // Stores active chats
-    
+    private Map<String, MultiUserChat> activeRoomsListeners = new HashMap<>(); // Stores all the multiuser chats objects thar can send messages also
     @GetMapping("/dashboard")
     public String getDashboard(Model model) {
         xmppClient.updateStatus("available", "");
@@ -64,18 +68,30 @@ public class XmppDashboardController {
     
     @PostMapping("/message")
     @ResponseBody
-    public String postMessage(@RequestBody Map<String, String> payload) {
+    public  HashMap<String, String> postMessage(@RequestBody Map<String, String> payload) {
     String message = payload.get("message");
     String destination = payload.get("destination");
     System.out.println("Received message: " + message);
     System.out.println("to destination: " + destination);
     // Process the message here (e.g., broadcast to other users, save to DB, etc.)
-    try{xmppClient.sendMessage(destination,message);}
-    catch(Exception e){return e.getMessage();}
-    return "Message received: " + message;
+    try{
+        if(activeRoomsListeners.containsKey(destination)){
+            activeRoomsListeners.get(destination).sendMessage(message);
+        }
+        else {xmppClient.sendMessage(destination,message); }
+        
+    }
+    catch(Exception e){
+        return new HashMap<String, String>() {{
+            put("succes","false");
+            put("message",e.getMessage());
+        }};
+    }
+    return new HashMap<String, String>() {{put("succes","true");}};
    }
-    
-    @PostMapping("/delete")
+   
+
+   @PostMapping("/delete")
     @ResponseBody
     public String[] postMethodName(@RequestBody String entity) {
         return xmppClient.DeleteAccount();
@@ -144,8 +160,32 @@ public class XmppDashboardController {
         try{
             System.out.println(room.get("JID"));
             System.out.println(room.get("Name"));
-            xmppClient.joinGroup(room.get("JID"),room.get("Name"));
-            return new HashMap<String, String>() {{put("succes","true");}};
+            if (!activeRoomsListeners.containsKey(room.get("JID"))){ //avoid duplication on listeners for a room
+                MultiUserChat muc = xmppClient.joinGroup(room.get("JID"),room.get("Name"));
+                muc.addMessageListener(new MessageListener() {
+                    @Override
+                    public void processMessage(Message message) {
+                        // Handle the received message
+                        if (message.getBody() != null) {
+                            System.out.println("New message in group chat: " + message.getBody());
+                            System.out.println("New message user: " + message.getFrom().getResourceOrEmpty().toString());
+                            // Convert the XMPP message to a DTO and send it via WebSocket
+                            ChatMessageDTO chatMessageDTO = new ChatMessageDTO(message.getFrom().getResourceOrEmpty().toString(), message.getBody());
+                            RoomMessageDTO roomMessageDTO = new RoomMessageDTO(room.get("JID"),chatMessageDTO);
+                            messagingTemplate.convertAndSendToUser(xmppClient.getUsername(), "/queue/group-messages", roomMessageDTO);
+                        }
+                    }
+                    
+                }
+
+                );
+                activeRoomsListeners.put(room.get("JID"), muc);
+            }
+           
+
+            return new HashMap<String, String>() {{put("succes","true");
+        
+        }};
         } catch(Exception e){
             return new HashMap<String, String>() {{put("succes","false");put("message",e.getMessage());}};
         }

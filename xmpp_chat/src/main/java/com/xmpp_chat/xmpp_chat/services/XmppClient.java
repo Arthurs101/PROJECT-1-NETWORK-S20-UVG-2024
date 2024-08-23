@@ -264,12 +264,13 @@ public class XmppClient {
         joinGroup(roomName, nickname);
     }
 
-    public void joinGroup(String JID, String nickname) throws Exception {
+    public MultiUserChat joinGroup(String JID, String nickname) throws Exception {
         MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
         EntityBareJid roomJid = JidCreate.entityBareFrom(JID);
         MultiUserChat muc = mucManager.getMultiUserChat(roomJid);
         // Join the group (room)
         muc.join(Resourcepart.from(nickname));
+        return muc;
     }
 
     public List<Map<String, String>> retrieveChatRooms() {
@@ -298,21 +299,6 @@ public class XmppClient {
             allChatRooms.add(err);
             return allChatRooms;
         }
-    }
-
-    // public List<String> getGroups() throws Exception {
-    //     MultiUserChatManager mucManager = MultiUserChatManager.getInstanceFor(connection);
-    //     List<String> rooms = new ArrayList<>();
-        
-    //     // Discover all rooms
-    //     Set<EntityBareJid> items = mucManager.getJoinedRooms();
-    //     for (DiscoverItems.Item item : items.console) {
-    //         rooms.add(item.getEntityID().toString());
-    //     }
-        
-    //     return rooms;
-    // }
-
-    
+    }   
 }
 
