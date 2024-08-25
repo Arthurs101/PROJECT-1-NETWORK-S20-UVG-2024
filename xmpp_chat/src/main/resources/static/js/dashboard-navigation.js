@@ -1,6 +1,7 @@
 Settingsredered = false;
 FoundGroups = [];
 Mygroups = [];
+MyContacts = {};
 listMode = 1;
 function search(JID, myArray){
     for (let i=0; i < myArray.length; i++) {
@@ -70,6 +71,43 @@ function createGroupElement(groupName,join,JID){
     return li;
 }
 
+function createGroup(){
+    Swal.fire({
+        title: "Cual será el nombre del grupo?",
+        input: "text",
+        inputAttributes: {
+          autocapitalize: "off"
+        },
+        showCancelButton: true,
+        confirmButtonText: "Crear",
+        showLoaderOnConfirm: true,
+        preConfirm: async (name) => {
+            await fetch('/rooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body : JSON.stringify({roomName : name , nickname:document.getElementById('profile-name').textContent})
+                }).then(response => response.json())
+                .then(body => {
+                   if (body.succes == 'false') {
+                    Swal.showValidationMessage(`
+                        Request failed: ${body.message}
+                      `);
+                   }
+            })
+            const response = await fetch(
+                {}
+            );
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire('succes','room created','success');
+        }
+      });
+}
+
 function joinGroup(groupJid){
     fetch('/rooms/join',{
      method: 'POST',
@@ -88,6 +126,9 @@ function joinGroup(groupJid){
     );
  }
 
+// document.getElementById('create-group').addEventListener('click', function() {
+    
+// });
 
 document.getElementById("join-room").addEventListener("click", function() {
     fetchGroups();
@@ -120,6 +161,7 @@ document.getElementById("grupal-chat-container").addEventListener("click", funct
     let messagesDisplay = document.getElementById('chat-page')
     messagesDisplay.classList.remove('active')
     messagesDisplay.classList.add('inactive')
+    document.getElementById("rooms-list").innerHTML = "";
     fetchGroups();
     Mygroups.forEach( (k) => {
     document.getElementById("rooms-list").appendChild(createGroupElement(k['Name']));
@@ -168,12 +210,26 @@ document.getElementById("profile-details-option").addEventListener('click',funct
         })
         .then(response => response.text())
         .then(data => {
+            console.log(data)
             var contactList = document.getElementById('contact-list');
             contactList.innerHTML = "";
             contacts = JSON.parse(data);
             contacts.forEach(contact => {
+                var wrapperLi = document.createElement('li');
+                wrapperLi.style.display ="flex";
+                wrapperLi.style.flexDirection = "row";
+                wrapperLi.style.justifyContent= "flex-start";
+                wrapperLi.style.alignContent = "center"
+                const info = document.createElement('i')
+                info.className = 'bx bxs-info-circle';
+                info.style.fontSize = "20px";
+                info.style.color = "white";
+                info.setAttribute('onclick', `showUsrDetails('${contact['jid']}')`)
                 var userLI = createUsernameListElement(contact['jid'])
-                contactList.appendChild(userLI);
+                MyContacts[contact['jid']] = contact;
+                wrapperLi.appendChild(info);
+                wrapperLi.appendChild(userLI)
+                contactList.appendChild(wrapperLi);
             });
         })
         .catch(error => {
@@ -182,6 +238,16 @@ document.getElementById("profile-details-option").addEventListener('click',funct
         Settingsredered = true;
     }
 })
+
+function showUsrDetails(JID){
+    Swal.fire({
+        title: `User Info: ${MyContacts[JID].name}`,
+        html: `
+        <p> Estado : ${MyContacts[JID].status} </p>
+        <p> Mensaje de presencia : ${MyContacts[JID].presence} </p>
+    `,
+    })
+}
 //handle the change back into chats
 document.getElementById("back-to-chats").addEventListener('click',function(){
     Settingsredered = false;

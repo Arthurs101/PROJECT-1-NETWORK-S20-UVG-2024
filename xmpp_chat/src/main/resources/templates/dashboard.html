@@ -102,6 +102,7 @@
                 </div>
                 <div class="chat-input">
                     <i class='bx bx-paperclip' id="attach-file-button"></i>
+                    <input type="file" id="fileInput" name="file" style="display: none;">
                     <input type="text" name="message" id="message" placeholder="Type your message">
                     <button type="button" id="send-button">Send</button>
                 </div>            
@@ -137,7 +138,7 @@
                 <input type="text" name="status-message" id="status-message" placeholder="Mensaje de estado">
             </div>
             <div class="nav-page inactive" id="rooms">
-                <button type="button" id="create-room">Create a Room</button>
+                <button type="button" id="create-room" onclick="createGroup()">Create a Room</button>
                 <button type="button" id="join-room">Join a Room</button>
                 <div class="chat-wrapper" id="all-groups">
                     <ul id="rooms-list">

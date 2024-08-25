@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.xmpp_chat.xmpp_chat.Models.ChatMessageDTO;
 import com.xmpp_chat.xmpp_chat.Models.RoomDTO;
@@ -90,6 +91,20 @@ public class XmppDashboardController {
     return new HashMap<String, String>() {{put("succes","true");}};
    }
    
+   @PostMapping("/message/file")
+   @ResponseBody
+    public  HashMap<String, String> postMessageFile(@RequestParam("file") MultipartFile file, 
+                                                 @RequestParam("recipientJid") String recipientJid,
+                                                 @RequestParam("description") String description) {
+        System.out.println("got file request");
+        try{
+            xmppClient.fileSender(recipientJid,file,description);
+            return new HashMap<String, String>(){{put("succes","true");}};
+        }catch(Exception e){
+            return new HashMap<String, String>(){{put("succes","false"); put("message",e.getMessage());}};
+        }
+    }
+   
 
     @PostMapping("/delete")
     @ResponseBody
@@ -147,6 +162,9 @@ public class XmppDashboardController {
     @ResponseBody
     public Map<String, String> newRoom(@RequestBody HashMap<String, String> roomMap) { //creating a new room
         try{
+            if(roomMap.get("roomName").equals("")){
+                return new HashMap<String, String>(){{put("succes","false");put("message","name cannot be empty");}};
+            }
             xmppClient.createGroup(roomMap.get("roomName"),roomMap.get("nickname"));
             return new HashMap<String, String>() {{put("succes","true");}};
         }catch(Exception e){

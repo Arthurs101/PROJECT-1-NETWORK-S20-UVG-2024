@@ -21,5 +21,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").withSockJS(); //1 to 1
         registry.addEndpoint("/ws/group").withSockJS(); // group messages
+        registry.addEndpoint("/ws/notifications").withSockJS(); // notifications
     }
 }

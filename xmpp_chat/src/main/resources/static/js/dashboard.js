@@ -77,6 +77,7 @@ document.getElementById("send-button").addEventListener("click", function() {
             if (search(destination, FoundGroups) != ""){
                 currentHistoricalGroups[destination] = currentHistoricalGroups[destination] || [];
                 currentHistoricalGroups[destination].push({body :message, from : destination});
+                // renderMessageGrupal(destination,message,);
             }else{
                 currentHistorical[destination] = currentHistorical[destination] || [];
                 currentHistorical[destination].push({ message: message, received: false });
@@ -256,3 +257,45 @@ function showChat(username) {
 
 }
 
+//Files management
+document.getElementById('attach-file-button').addEventListener('click', function() {
+    // Trigger the file input when the attach file button is clicked
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function() {
+    // When the user selects a file, call the uploadFile function
+    if (this.files && this.files.length > 0) {
+        uploadFile();
+    }
+});
+
+async function uploadFile() {
+    let formData = new FormData();
+    const fileInput = document.getElementById('fileInput');
+    const recipientJid = document.getElementById('current-chat-username').textContent;
+    const description = document.getElementById('message').value;
+    document.getElementById("message").value = ""
+    // Append file and other data to FormData
+    formData.append('file', fileInput.files[0]);
+    formData.append('recipientJid', recipientJid);
+    formData.append('description', description);
+
+    console.log(formData);
+    try {
+        const response = await fetch('/message/file', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+        .then (data => {
+            if (data["succes"] == "true") {
+                Swal.fire('success', 'File uploaded successfully!','success');
+            } else {
+                Swal.fire('error','File upload failed: ' + data["message"],'error');
+            }
+        });        
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('error','File upload failed: ' + error,'error');
+    }
+}

@@ -1,6 +1,10 @@
 package com.xmpp_chat.xmpp_chat.services;
+// import static org.mockito.Mockito.description;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +12,11 @@ import java.util.Set;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.SmackException.NoResponseException;
+import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.SmackException.NotLoggedInException;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.Presence;
@@ -17,21 +25,28 @@ import org.jivesoftware.smack.packet.PresenceBuilder;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.RosterGroup;
+import org.jivesoftware.smack.roster.RosterListener;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.filetransfer.FileTransfer;
+import org.jivesoftware.smackx.filetransfer.FileTransferManager;
+import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.EntityFullJid;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.jid.parts.Resourcepart;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.xmpp_chat.xmpp_chat.Models.RoomDTO;
 @Service
@@ -39,6 +54,7 @@ public class XmppClient {
     private XmppClient singleton = null;
     private XMPPTCPConnection connection;
     private AccountManager accountManager;
+    private Roster rosterListener;
     private String currUsername;
     @Value("${xmpp.domain}")
     private String domain;
@@ -64,6 +80,8 @@ public class XmppClient {
         this.currUsername = username;
         if (connection.isConnected()){
             this.accountManager = AccountManager.getInstance(connection);
+            rosterListener = Roster.getInstanceFor(connection);
+            rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
         }
         return connection.isConnected();
     }
@@ -93,6 +111,8 @@ public class XmppClient {
             attributes.put("name", fullName);
             accountManager.createAccount(localUsr, password,attributes);
             this.currUsername = username;
+            rosterListener = Roster.getInstanceFor(connection);
+            rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
             return true;
         } else {
             System.out.println("El servidor no soporta la creación de cuentas");
@@ -164,8 +184,7 @@ public class XmppClient {
         if (this.connection != null && this.connection.isAuthenticated()) {
             try {
                 EntityBareJid jid = JidCreate.entityBareFrom(jidStr);
-                Roster roster = Roster.getInstanceFor(connection);
-                roster.createEntry(jid, jidStr, null);
+                rosterListener.createEntry(jid, jidStr, null);
                 System.out.println("");
                 String[] msg= {"true","Solicitud enviada exitosamente"};
                 return msg;
@@ -191,7 +210,7 @@ public class XmppClient {
     }
     
     public ChatManager getChatManagerListener() {
-        if (this.connection.isConnected()) {
+        if (this.connection != null && this.connection.isAuthenticated()) {
         ChatManager chatManager = ChatManager.getInstanceFor(connection);
 
         return chatManager;
@@ -205,24 +224,32 @@ public class XmppClient {
     }
     
     public void addContact(String contactName) throws SmackException.NotLoggedInException, SmackException.NoResponseException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, XmppStringprepException {
-        Roster roster = Roster.getInstanceFor(connection);
         // Add the contact
         EntityBareJid jid = JidCreate.entityBareFrom(contactName);
-        roster.createEntry(jid, contactName,null);
+        rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+        rosterListener.createEntry(jid, contactName,null);
+        
+    }
+
+    public void removeContact(String contactJID) throws XmppStringprepException, NotLoggedInException, NoResponseException, XMPPErrorException, NotConnectedException, InterruptedException {
+        EntityBareJid JID = JidCreate.entityBareFrom(contactJID);
+        RosterEntry entry = rosterListener.getEntry(JID);
+        rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+        rosterListener.removeEntry(entry);
     }
     
     public List<Map<String, String>> getContacts() throws Exception {
-    Roster roster = Roster.getInstanceFor(connection);
-        if (!roster.isLoaded()) {
-            roster.reloadAndWait();
+        if (!rosterListener.isLoaded()) {
+            rosterListener.reloadAndWait();
         }
 
         List<Map<String, String>> contacts = new ArrayList<>();
-        for (RosterEntry entry : roster.getEntries()) {
+        for (RosterEntry entry : rosterListener.getEntries()) {
             Map<String, String> contactInfo = new HashMap<>();
             contactInfo.put("jid", entry.getJid().toString());
             contactInfo.put("name", entry.getName() != null ? entry.getName() : entry.getJid().toString());
-            contactInfo.put("status", roster.getPresence(entry.getJid()).getStatus());
+            contactInfo.put("status", rosterListener.getPresence(entry.getJid()).getType().toString());
+            contactInfo.put("presence", rosterListener.getPresence(entry.getJid()).getStatus() != null ? rosterListener.getPresence(entry.getJid()).getStatus() : "");
             contactInfo.put("groups", getGroups(entry));
             contacts.add(contactInfo);
         }
@@ -245,7 +272,7 @@ public class XmppClient {
     }
 
     public  List<RoomDTO> getJoinedGroups() {
-         MultiUserChatManager multiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
+        MultiUserChatManager multiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
         List<EntityBareJid> joinedRooms = new ArrayList<>(multiUserChatManager.getJoinedRooms());
 
         List<RoomDTO> roomDtos = new ArrayList<>();
@@ -263,7 +290,7 @@ public class XmppClient {
         // Create the room and configure it if not already exists
         muc.create(Resourcepart.from(nickname));
         // MucCreateConfigFormHandle handle = muc.;
-        joinGroup(roomName, nickname);
+        joinGroup(roomJid.toString(), nickname);
     }
 
     public MultiUserChat joinGroup(String JID, String nickname) throws Exception {
@@ -302,5 +329,53 @@ public class XmppClient {
             return allChatRooms;
         }
     }   
+
+    public void setRosterListener(){
+        rosterListener.addRosterListener(new RosterListener() {
+			@Override
+			public void entriesAdded(Collection<Jid> addresses) {
+				System.out.println("add Presence:");
+			}
+			@Override
+			public void entriesUpdated(Collection<Jid> addresses) {
+				System.out.println("update Presence:");
+			}
+			@Override
+			public void entriesDeleted(Collection<Jid> addresses) {
+				System.out.println("delete Presence:");
+			}
+			@Override
+			public void presenceChanged(Presence presence) {
+				System.out.println("cahnged Presence:");
+			}
+		});
+    }
+
+    public void fileSender(String JID,MultipartFile file,String msg) throws Exception{
+        // Get the FileTransferManager instance
+        FileTransferManager manager = FileTransferManager.getInstanceFor(connection);
+
+            // Create the OutgoingFileTransfer request
+            EntityFullJid recipientFullJid = JidCreate.entityFullFrom(JID + "/resource");
+            OutgoingFileTransfer transfer = manager.createOutgoingFileTransfer(recipientFullJid);
+
+            // Get the file input stream
+            InputStream inputStream = file.getInputStream();
+
+            // Send the file
+            transfer.sendStream(inputStream, file.getOriginalFilename(), file.getSize(), msg);
+
+            // Wait for the transfer to complete
+            while (!transfer.isDone()) {
+                if (transfer.getStatus().equals(FileTransfer.Status.error)) {
+                    throw new Exception("Error during file transfer: " + transfer.getError());
+                }
+                Thread.sleep(1000);
+            }
+            if (!transfer.getStatus().equals(FileTransfer.Status.complete)) {
+                throw new Exception("File transfer failed with status: " + transfer.getStatus().toString());
+            }
+    }
 }
+
 
