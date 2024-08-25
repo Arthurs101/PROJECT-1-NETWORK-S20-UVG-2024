@@ -62,7 +62,6 @@ public class XmppDashboardController {
     }
     @PostMapping("/logout")
     public String logout() {
-        System.out.println("it should log out");
         xmppClient.disconnect();
         return "redirect:/login";
     }
@@ -72,8 +71,6 @@ public class XmppDashboardController {
     public  HashMap<String, String> postMessage(@RequestBody Map<String, String> payload) {
     String message = payload.get("message");
     String destination = payload.get("destination");
-    System.out.println("Received message: " + message);
-    System.out.println("to destination: " + destination);
     // Process the message here (e.g., broadcast to other users, save to DB, etc.)
     try{
         if(activeRoomsListeners.containsKey(destination)){
@@ -96,7 +93,6 @@ public class XmppDashboardController {
     public  HashMap<String, String> postMessageFile(@RequestParam("file") MultipartFile file, 
                                                  @RequestParam("recipientJid") String recipientJid,
                                                  @RequestParam("description") String description) {
-        System.out.println("got file request");
         try{
             xmppClient.fileSender(recipientJid,file,description);
             return new HashMap<String, String>(){{put("succes","true");}};
@@ -137,13 +133,26 @@ public class XmppDashboardController {
     @ResponseBody
     public String addContact(@RequestBody Map<String, String> payload) {
         try {
-            xmppClient.addContact(payload.get("contactJid"));
+            xmppClient.removeContact(payload.get("contactJid"));
+            return "succes";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed to remove contact: " + e.getMessage();
+        }
+    }
+
+    @PostMapping("/remove-contact")
+    @ResponseBody
+    public String removeContact(@RequestBody Map<String, String> payload) {
+        try {
+            xmppClient.removeContact(payload.get("contactJid"));
             return "succes";
         } catch (Exception e) {
             e.printStackTrace();
             return "Failed to add contact: " + e.getMessage();
         }
     }
+
     @GetMapping("/get-contacts")
     @ResponseBody
     public List<Map<String, String>> getContacts() {
@@ -181,8 +190,6 @@ public class XmppDashboardController {
     @ResponseBody
     public Map<String, String> joinRoom(@RequestBody HashMap<String,String> room){
         try{
-            System.out.println(room.get("JID"));
-            System.out.println(room.get("Name"));
             if (!activeRoomsListeners.containsKey(room.get("JID"))){ //avoid duplication on listeners for a room
                 MultiUserChat muc = xmppClient.joinGroup(room.get("JID"),room.get("Name"));
                 muc.addMessageListener(new MessageListener() {
@@ -190,8 +197,6 @@ public class XmppDashboardController {
                     public void processMessage(Message message) {
                         // Handle the received message
                         if (message.getBody() != null) {
-                            System.out.println("New message in group chat: " + message.getBody());
-                            System.out.println("New message user: " + message.getFrom().getResourceOrEmpty().toString());
                             // Convert the XMPP message to a DTO and send it via WebSocket
                             ChatMessageDTO chatMessageDTO = new ChatMessageDTO(message.getFrom().getResourceOrEmpty().toString(), message.getBody());
                             RoomMessageDTO roomMessageDTO = new RoomMessageDTO(room.get("JID"),chatMessageDTO);
@@ -216,8 +221,6 @@ public class XmppDashboardController {
     @GetMapping("/chat/{username}")
     @ResponseBody
     public List<String> getChatMessages(@PathVariable("username") String username) {
-        System.out.println("Received request for " + username );
-        System.out.println("Keys are: "+ activeChatsMap.keySet().toString());
         return activeChatsMap.getOrDefault(username, new ArrayList<>());
     }
 }

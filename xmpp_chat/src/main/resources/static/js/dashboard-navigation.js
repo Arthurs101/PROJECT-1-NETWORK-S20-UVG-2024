@@ -204,7 +204,12 @@ document.getElementById("profile-details-option").addEventListener('click',funct
 
     //show the contacts list container
     document.getElementById("sidebar-contacts-container").style.display = 'inherit';
+    getContacts();
+    Settingsredered = true;
+    }
+})
 
+function getContacts() {
     fetch('/get-contacts', {
         method: 'GET'
         })
@@ -215,19 +220,39 @@ document.getElementById("profile-details-option").addEventListener('click',funct
             contactList.innerHTML = "";
             contacts = JSON.parse(data);
             contacts.forEach(contact => {
+
                 var wrapperLi = document.createElement('li');
                 wrapperLi.style.display ="flex";
                 wrapperLi.style.flexDirection = "row";
                 wrapperLi.style.justifyContent= "flex-start";
                 wrapperLi.style.alignContent = "center"
+                
                 const info = document.createElement('i')
+                const remove = document.createElement('i');
+                const contactActionsDiv = document.createElement('div');
+
+                remove.className = 'bx bxs-trash';
+                remove.style.fontSize = "20px";
+                remove.style.color = "red";
+                remove.setAttribute('onclick', `removeContact('${contact['jid']}')`)
+                
                 info.className = 'bx bxs-info-circle';
                 info.style.fontSize = "20px";
                 info.style.color = "white";
                 info.setAttribute('onclick', `showUsrDetails('${contact['jid']}')`)
-                var userLI = createUsernameListElement(contact['jid'])
+                
+                contactActionsDiv.style.display ="flex";
+                contactActionsDiv.style.flexDirection = "column";
+                contactActionsDiv.style.justifyContent= "flex-start";
+                contactActionsDiv.style.alignContent = "center"
+                
+                const userLI = createUsernameListElement(contact['jid'])
+                
                 MyContacts[contact['jid']] = contact;
-                wrapperLi.appendChild(info);
+
+                contactActionsDiv.appendChild(remove);
+                contactActionsDiv.appendChild(info);
+                wrapperLi.appendChild(contactActionsDiv);
                 wrapperLi.appendChild(userLI)
                 contactList.appendChild(wrapperLi);
             });
@@ -235,9 +260,7 @@ document.getElementById("profile-details-option").addEventListener('click',funct
         .catch(error => {
             console.error("Error getting contacts ", error);
         });
-        Settingsredered = true;
-    }
-})
+}
 
 function showUsrDetails(JID){
     Swal.fire({
@@ -248,6 +271,30 @@ function showUsrDetails(JID){
     `,
     })
 }
+
+function removeContact(JID){
+    fetch('/remove-contact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ contactJid: JID })
+        })
+        .then(response => response.text())
+        .then(data => { 
+            console.log(data);
+            if(data != "succes") {
+                Swal.fire('error',data,'error');
+            }else{
+                Swal.fire('success','contact removed','success');
+                getContacts();
+            }
+        })
+        .catch(error => {
+            console.error("Error sending message: ", error);
+        });
+}
+
 //handle the change back into chats
 document.getElementById("back-to-chats").addEventListener('click',function(){
     Settingsredered = false;
@@ -298,6 +345,12 @@ document.getElementById("add-contact").addEventListener('click', async function(
         })
         .then(response => response.text())
         .then(data => {
+            if(data != "succes") {
+                Swal.fire('error',data,'error');
+            }else{
+                Swal.fire('succes','contact added','succes');
+                getContacts();
+            }
         })
         .catch(error => {
             console.error("Error sending message: ", error);

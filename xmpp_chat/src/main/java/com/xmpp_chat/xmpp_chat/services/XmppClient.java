@@ -126,7 +126,7 @@ public class XmppClient {
         }else{
             try {
                 accountManager = AccountManager.getInstance(connection);
-                connection = null;
+                disconnect();
                 accountManager.deleteAccount();
                 return new HashMap<String, String>(){{put("succes","true"); put("message","deleted account");}};
             }catch (Exception e){
@@ -170,6 +170,8 @@ public class XmppClient {
             connection.sendStanza(presence);
             response.put("success", "true");
             response.put("message", "Status changed");
+            System.out.println(status);
+            System.out.println(message);
         } catch (Exception e) {
             response.put("success", "false");
             response.put("message", e.getMessage());
@@ -185,7 +187,6 @@ public class XmppClient {
             try {
                 EntityBareJid jid = JidCreate.entityBareFrom(jidStr);
                 rosterListener.createEntry(jid, jidStr, null);
-                System.out.println("");
                 String[] msg= {"true","Solicitud enviada exitosamente"};
                 return msg;
             } catch (Exception e) {
@@ -205,7 +206,6 @@ public class XmppClient {
             chat.send(messageBody);
             
         } else {
-            System.out.println("No auth session available");
         }
     }
     
@@ -232,6 +232,7 @@ public class XmppClient {
     }
 
     public void removeContact(String contactJID) throws XmppStringprepException, NotLoggedInException, NoResponseException, XMPPErrorException, NotConnectedException, InterruptedException {
+        System.out.println("JID RECEIVE: " + contactJID);
         EntityBareJid JID = JidCreate.entityBareFrom(contactJID);
         RosterEntry entry = rosterListener.getEntry(JID);
         rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
@@ -330,38 +331,16 @@ public class XmppClient {
         }
     }   
 
-    public void setRosterListener(){
-        rosterListener.addRosterListener(new RosterListener() {
-			@Override
-			public void entriesAdded(Collection<Jid> addresses) {
-				System.out.println("add Presence:");
-			}
-			@Override
-			public void entriesUpdated(Collection<Jid> addresses) {
-				System.out.println("update Presence:");
-			}
-			@Override
-			public void entriesDeleted(Collection<Jid> addresses) {
-				System.out.println("delete Presence:");
-			}
-			@Override
-			public void presenceChanged(Presence presence) {
-				System.out.println("cahnged Presence:");
-			}
-		});
-    }
-
     public void fileSender(String JID,MultipartFile file,String msg) throws Exception{
         // Get the FileTransferManager instance
         FileTransferManager manager = FileTransferManager.getInstanceFor(connection);
 
             // Create the OutgoingFileTransfer request
-            EntityFullJid recipientFullJid = JidCreate.entityFullFrom(JID + "/resource");
+            EntityFullJid recipientFullJid = JidCreate.entityFullFrom(JID +"/files");
             OutgoingFileTransfer transfer = manager.createOutgoingFileTransfer(recipientFullJid);
 
             // Get the file input stream
             InputStream inputStream = file.getInputStream();
-
             // Send the file
             transfer.sendStream(inputStream, file.getOriginalFilename(), file.getSize(), msg);
 

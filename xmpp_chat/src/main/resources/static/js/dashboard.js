@@ -26,14 +26,9 @@ document.getElementById("delete-account-button").addEventListener('click',functi
 
         
     }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
             fetch('/delete', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({})  // or any necessary data to send
             })
             .then(response => response.json())
             .then(data => {
@@ -77,7 +72,7 @@ document.getElementById("send-button").addEventListener("click", function() {
             if (search(destination, FoundGroups) != ""){
                 currentHistoricalGroups[destination] = currentHistoricalGroups[destination] || [];
                 currentHistoricalGroups[destination].push({body :message, from : destination});
-                // renderMessageGrupal(destination,message,);
+                // renderMessageGrupal(destination,message,); The listener also receives the message sent
             }else{
                 currentHistorical[destination] = currentHistorical[destination] || [];
                 currentHistorical[destination].push({ message: message, received: false });

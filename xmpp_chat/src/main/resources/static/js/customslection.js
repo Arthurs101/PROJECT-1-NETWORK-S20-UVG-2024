@@ -37,20 +37,21 @@ document.querySelectorAll('.dropdown-option').forEach(option => {
         // Get the selected status and message
         const status = this.getAttribute('data-value');
         const indicator  =  this.getAttribute('data-class');
-        const msg  =  document.getElementById('data-message');
+        const msg  =  this.getAttribute('data-message');
         // Update the displayed status
         document.getElementById('selected-status-text').textContent = msg;
         document.getElementById('active-status-color').className = indicator;
         document.getElementById('status').textContent = msg;
         document.getElementById('status-circle').className = indicator;
-        const presence_msg = document.getElementById('status-message').textContent;
+        const presence_msg = document.getElementById('status-message').value.trim();
+        console.log({ status: status, message: presence_msg });
         // Make a POST request to update the status on the server
         fetch('/set-status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ status: status, message: msg }),
+            body: JSON.stringify({ status: status, message: presence_msg }),
         })
         .then(response => response.json())  // Parse JSON response
         .then(data => {
