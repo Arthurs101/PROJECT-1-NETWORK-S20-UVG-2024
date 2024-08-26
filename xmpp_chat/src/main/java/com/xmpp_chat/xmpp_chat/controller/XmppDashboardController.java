@@ -133,7 +133,7 @@ public class XmppDashboardController {
     @ResponseBody
     public String addContact(@RequestBody Map<String, String> payload) {
         try {
-            xmppClient.removeContact(payload.get("contactJid"));
+            xmppClient.addContact(payload.get("contactJid"));
             return "succes";
         } catch (Exception e) {
             e.printStackTrace();

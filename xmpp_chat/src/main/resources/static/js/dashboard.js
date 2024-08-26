@@ -55,6 +55,7 @@ document.getElementById("delete-account-button").addEventListener('click',functi
 document.getElementById("send-button").addEventListener("click", function() {
     let message = document.getElementById("message").value;
     let destination = document.getElementById('current-chat-username').textContent.trim(); // Fixed retrieval
+    console.log(destination);
     fetch('/message', {
         method: 'POST',
         headers: {

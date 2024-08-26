@@ -113,6 +113,7 @@ public class XmppClient {
             this.currUsername = username;
             rosterListener = Roster.getInstanceFor(connection);
             rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+            addRosterListener();
             return true;
         } else {
             System.out.println("El servidor no soporta la creación de cuentas");
@@ -126,7 +127,6 @@ public class XmppClient {
         }else{
             try {
                 accountManager = AccountManager.getInstance(connection);
-                disconnect();
                 accountManager.deleteAccount();
                 return new HashMap<String, String>(){{put("succes","true"); put("message","deleted account");}};
             }catch (Exception e){
@@ -226,7 +226,7 @@ public class XmppClient {
     public void addContact(String contactName) throws SmackException.NotLoggedInException, SmackException.NoResponseException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, XmppStringprepException {
         // Add the contact
         EntityBareJid jid = JidCreate.entityBareFrom(contactName);
-        rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+        // rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
         rosterListener.createEntry(jid, contactName,null);
         
     }
@@ -235,7 +235,7 @@ public class XmppClient {
         System.out.println("JID RECEIVE: " + contactJID);
         EntityBareJid JID = JidCreate.entityBareFrom(contactJID);
         RosterEntry entry = rosterListener.getEntry(JID);
-        rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+        // rosterListener.setSubscriptionMode(Roster.SubscriptionMode.accept_all);
         rosterListener.removeEntry(entry);
     }
     
@@ -330,7 +330,33 @@ public class XmppClient {
             return allChatRooms;
         }
     }   
+    private void addRosterListener() {
+        rosterListener.addRosterListener(new RosterListener() {
+            @Override
+            public void entriesAdded(Collection<Jid> addresses) {
+                System.out.println("ADDED: ");
+            }
 
+            @Override
+            public void entriesUpdated(Collection<Jid> addresses) {
+                System.out.println("UIPDATED: ");
+            }
+
+            @Override
+            public void entriesDeleted(Collection<Jid> addresses) {
+                System.out.println("REMOVED: ");
+            }
+
+            @Override
+            public void presenceChanged(Presence presence) {
+                // This method will be called when a presence changes
+                if (presence.getType() == Presence.Type.subscribe) {
+                    System.out.println("New subscription request from: " + presence.getFrom());
+                    // Here you could store the subscription request or send it to your frontend via WebSocket
+                }
+            }
+        });
+    }
     public void fileSender(String JID,MultipartFile file,String msg) throws Exception{
         // Get the FileTransferManager instance
         FileTransferManager manager = FileTransferManager.getInstanceFor(connection);
